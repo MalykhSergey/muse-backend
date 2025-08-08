@@ -1,0 +1,70 @@
+services:
+
+  muse:
+    build: .
+    container_name: Muse
+    depends_on:
+      - keycloak
+      - postgres-spring
+    environment:
+      DB_URL: postgres-spring:5432/muse
+      SPRING_PROFILES_ACTIVE: dev
+    ports:
+      - "8080:8080"
+    command: java -jar app.jar
+
+  keycloak:
+    container_name: Keycloak
+    image: quay.io/keycloak/keycloak:latest
+    ports:
+      - 9090:8080
+    environment:
+      KC_DB: postgres
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: root
+      KC_DB_URL: jdbc:postgresql://postgres-keycloak:5432/keycloak
+      KEYCLOAK_IMPORT: /opt/keycloak/data/import/realm-export.json
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    depends_on:
+      - postgres-keycloak
+    volumes:
+      - ./keycloak/users-auth-realm.json:/opt/keycloak/data/import/realm-export.json
+    command:
+      [
+        'start-dev',
+        '--import-realm',
+        '--http-enabled=true',
+      ]
+
+  postgres-spring:
+    container_name: Postgres-spring
+    image: postgres
+    environment:
+      POSTGRES_USER: spring
+      POSTGRES_PASSWORD: boot
+      POSTGRES_DB: muse
+    volumes:
+      - postgres_spring_data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+  postgres-keycloak:
+    container_name: Postgres-keycloak
+    image: postgres
+    environment:
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: keycloak
+    volumes:
+      - postgres_keycloak_data:/var/lib/postgresql/data
+    ports:
+      - 5435:5432
+
+volumes:
+  postgres_spring_data:
+    driver: local
+  postgres_keycloak_data:
+    driver: local
+  keycloak:
+    driver: local
