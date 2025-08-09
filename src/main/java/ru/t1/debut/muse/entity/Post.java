@@ -1,6 +1,7 @@
 package ru.t1.debut.muse.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,10 +15,11 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
     @Column
     private String title;
     @Column
@@ -38,29 +40,5 @@ public class Post {
     private LocalDateTime created;
     @Column
     private LocalDateTime updated;
-
-    public Post(PostDTO postDTO, User user) {
-        this.id = postDTO.id();
-        this.title = postDTO.title();
-        this.body = postDTO.body();
-        this.postType = postDTO.postType();
-        this.author = user;
-        if (postDTO.parentId() != 0 && postDTO.id() == 0) {
-            Post parent = new Post();
-            parent.setId(postDTO.parentId());
-            this.parent = parent;
-        } else {
-            this.parent = null;
-        }
-        if (postDTO.answerId() != 0) {
-            Post answer = new Post();
-            answer.setId(postDTO.answerId());
-            this.answer = answer;
-        } else {
-            this.answer = null;
-        }
-        this.created = null;
-        this.updated = LocalDateTime.now();
-    }
 }
 

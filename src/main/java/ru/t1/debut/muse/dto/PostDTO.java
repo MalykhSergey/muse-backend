@@ -1,21 +1,26 @@
 package ru.t1.debut.muse.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import ru.t1.debut.muse.entity.Post;
 import ru.t1.debut.muse.entity.PostType;
 
 import java.time.LocalDateTime;
 
-public record PostDTO(
-        long id,
-        String title,
-        String body,
-        PostType postType,
-        UserDTO author,
-        long parentId,
-        long answerId,
-        LocalDateTime created,
-        LocalDateTime updated
-) {
+@Data
+@AllArgsConstructor
+public final class PostDTO {
+    private Long id;
+    private String title;
+    private String body;
+    private PostType postType;
+    private UserDTO author;
+    private Long parentId;
+    private Long answerId;
+    private LocalDateTime created;
+    private LocalDateTime updated;
+
+
     public static PostDTO fromPost(Post post) {
         return new PostDTO(
                 post.getId(),
@@ -30,7 +35,7 @@ public record PostDTO(
         );
     }
 
-    private static long getNullableId(Post post) {
-        return post != null ? post.getId() : 0L;
+    private static Long getNullableId(Post post) {
+        return post != null ? post.getId() : null;
     }
 }

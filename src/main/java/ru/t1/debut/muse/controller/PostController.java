@@ -1,7 +1,6 @@
 package ru.t1.debut.muse.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,11 +9,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+import ru.t1.debut.muse.dto.CreatePostRequest;
 import ru.t1.debut.muse.dto.PostDTO;
+import ru.t1.debut.muse.dto.UpdatePostRequest;
 import ru.t1.debut.muse.dto.UserDTO;
 import ru.t1.debut.muse.services.PostService;
 
-@RestController("/posts")
+@RestController
+@RequestMapping("/posts")
 public class PostController {
 
     private final PostService postService;
@@ -26,12 +28,7 @@ public class PostController {
 
     @Operation(
             summary = "Получить список постов",
-            description = "Возвращает пагинированный список всех постов",
-            parameters = {
-                    @Parameter(name = "page", description = "Номер страницы", example = "0"),
-                    @Parameter(name = "size", description = "Размер страницы", example = "10"),
-                    @Parameter(name = "sort", description = "Поля для сортировки", example = "createdAt,desc")
-            }
+            description = "Возвращает пагинированный список всех постов"
     )
     @GetMapping
     public ResponseEntity<Page<PostDTO>> getPosts(Pageable pageable) {
@@ -48,13 +45,24 @@ public class PostController {
     }
 
     @Operation(
-            summary = "Создать новый пост, обновить существующий",
+            summary = "Создать новый пост",
             description = "Создает новый пост от имени аутентифицированного пользователя"
     )
     @PostMapping
-    public ResponseEntity<PostDTO> savePost(@RequestBody PostDTO postDTO, @AuthenticationPrincipal Jwt user) {
+    public ResponseEntity<PostDTO> createPost(@RequestBody CreatePostRequest createPostRequest, @AuthenticationPrincipal Jwt user) {
         UserDTO author = new UserDTO(user);
-        return new ResponseEntity<>(postService.savePost(postDTO, author), HttpStatus.CREATED);
+        return new ResponseEntity<>(postService.createPost(createPostRequest, author), HttpStatus.CREATED);
+    }
+
+    @Operation(
+            summary = "Обновить пост",
+            description = "Обновляет пост аутентифицированного пользователя"
+    )
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updatePost(@PathVariable Long id, @RequestBody UpdatePostRequest updatePostRequest, @AuthenticationPrincipal Jwt user) {
+        UserDTO author = new UserDTO(user);
+        postService.updatePost(updatePostRequest, id, author);
     }
 
     @DeleteMapping("/{id}")
