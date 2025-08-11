@@ -14,10 +14,15 @@ spec:
       labels:
         app: {{ include "muse.name" . }}
     spec:
+      imagePullSecrets:
+        {{- range .Values.image.pullSecrets }}
+        - name: {{ .name }}
+        {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["mvn", "spring-boot:run"]
           ports:
             - containerPort: {{ .Values.service.port }}
           env:
@@ -46,8 +51,15 @@ spec:
                 secretKeyRef:
                   name: muse-postgres-secret
                   key: password
-            - name: DATABASE_URL
-              value: >-
-                postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)?sslmode=disable
-          resources:
+            - name: DB_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: muse-config
+                  key: DB_URL
+            - name: ISSUER_URI
+              valueFrom:
+                configMapKeyRef:
+                  name: muse-config
+                  key: DB_URL
+ 
 {{ toYaml .Values.resources | indent 12 }}
