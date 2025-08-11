@@ -1,0 +1,18 @@
+replicaCount: 1
+
+image:
+  repository: change/me
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+
+postgres:
+  host: muse-postgres.postgres.svc.cluster.local
+  port: 5432
+  database: muse
+  user: muse
+
+resources: {}

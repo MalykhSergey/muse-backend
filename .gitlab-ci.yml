@@ -1,0 +1,3 @@
+include:
+  - project: 'muza-team-49/infra'
+    file: 'backend/.gitlab-ci.yml'
