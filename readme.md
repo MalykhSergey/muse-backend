@@ -7,11 +7,11 @@
     docker compose up -d muse
 ```
 
-UI для API (с документацией в будущем): http://127.0.0.1:8080/swagger-ui/index.html
+UI для API (с документацией в будущем): http://127.0.0.1/swagger-ui/index.html
 
 Запрос для получения токенов:
 ```shell
-    curl -X POST "http://localhost:9090/realms/users-auth/protocol/openid-connect/token" \
+    curl -X POST "http://localhost:8080/realms/users-auth/protocol/openid-connect/token" \
     -H "Content-Type: application/x-www-form-urlencoded" \
     -d "grant_type=password" \
     -d "client_id=qa-front" \
