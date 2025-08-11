@@ -15,6 +15,8 @@ import ru.t1.debut.muse.dto.UpdatePostRequest;
 import ru.t1.debut.muse.dto.UserDTO;
 import ru.t1.debut.muse.services.PostService;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/posts")
 public class PostController {
@@ -31,8 +33,8 @@ public class PostController {
             description = "Возвращает пагинированный список всех постов"
     )
     @GetMapping
-    public ResponseEntity<Page<PostDTO>> getPosts(Pageable pageable) {
-        return ResponseEntity.ok(postService.getPosts(pageable));
+    public ResponseEntity<Page<PostDTO>> getPosts(@RequestParam(value = "query", required = false) Optional<String> query, Pageable pageable) {
+        return ResponseEntity.ok(postService.getPosts(query, pageable));
     }
 
     @Operation(

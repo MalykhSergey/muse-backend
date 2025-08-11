@@ -14,6 +14,7 @@ import ru.t1.debut.muse.exception.ResourceNotFoundException;
 import ru.t1.debut.muse.repository.PostRepository;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 class PostServiceImpl implements PostService {
@@ -27,8 +28,9 @@ class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Page<PostDTO> getPosts(Pageable pageable) {
-        return postRepository.findAll(pageable).map(PostDTO::fromPost);
+    public Page<PostDTO> getPosts(Optional<String> query, Pageable pageable) {
+        return query.map(s -> postRepository.search(s, pageable).map(PostDTO::fromPost))
+                .orElseGet(() -> postRepository.findAll(pageable).map(PostDTO::fromPost));
     }
 
     @Override

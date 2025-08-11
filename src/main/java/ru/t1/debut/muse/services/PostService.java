@@ -7,8 +7,10 @@ import ru.t1.debut.muse.dto.PostDTO;
 import ru.t1.debut.muse.dto.UpdatePostRequest;
 import ru.t1.debut.muse.dto.UserDTO;
 
+import java.util.Optional;
+
 public interface PostService {
-    Page<PostDTO> getPosts(Pageable pageable);
+    Page<PostDTO> getPosts(Optional<String> query, Pageable pageable);
 
     PostDTO createPost(CreatePostRequest createPostRequest, UserDTO userDTO);
 
