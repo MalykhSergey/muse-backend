@@ -19,6 +19,8 @@ public final class PostDTO {
     private Long answerId;
     private LocalDateTime created;
     private LocalDateTime updated;
+    private int score;
+    private int answers_count;
 
 
     public static PostDTO fromPost(Post post) {
@@ -31,7 +33,9 @@ public final class PostDTO {
                 getNullableId(post.getParent()),
                 getNullableId(post.getAnswer()),
                 post.getCreated(),
-                post.getUpdated()
+                post.getUpdated(),
+                post.getScore(),
+                post.getAnswers().size()
         );
     }
 

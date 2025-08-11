@@ -38,7 +38,7 @@ class PostServiceImpl implements PostService {
         User author = userService.getUserByInternalId(authorDTO.internalId()).orElseGet(() -> userService.createUser(authorDTO));
         Post parent = null;
         if (createPostRequest.getParentId() != null) {
-            parent = new Post(createPostRequest.getParentId(), null, null, null, null, null, null, null, null);
+            parent = new Post(createPostRequest.getParentId(), null, null, null, null, null, null, null, null, null, null);
         }
         LocalDateTime now = LocalDateTime.now();
         Post post = new Post(
@@ -50,7 +50,9 @@ class PostServiceImpl implements PostService {
                 parent,
                 null,
                 now,
-                now
+                now,
+                null,
+                null
         );
         return PostDTO.fromPost(postRepository.save(post));
     }
@@ -60,7 +62,7 @@ class PostServiceImpl implements PostService {
         User author = userService.getUserByInternalId(authorDTO.internalId()).orElseGet(() -> userService.createUser(authorDTO));
         Post answer = null;
         if (updatePostRequest.getAnswerId() != null) {
-            answer = new Post(updatePostRequest.getAnswerId(), null, null, null, null, null, null, null, null);
+            answer = new Post(updatePostRequest.getAnswerId(), null, null, null, null, null, null, null, null, null, null);
         }
         LocalDateTime now = LocalDateTime.now();
         Post post = new Post(
@@ -72,7 +74,7 @@ class PostServiceImpl implements PostService {
                 null,
                 answer,
                 null,
-                now
+                now, null, null
         );
         int updated = 0;
         if (answer == null)

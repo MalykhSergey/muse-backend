@@ -5,9 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.t1.debut.muse.dto.PostDTO;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Entity
@@ -40,5 +40,21 @@ public class Post {
     private LocalDateTime created;
     @Column
     private LocalDateTime updated;
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
+    private List<Vote> votes;
+
+    @Transient
+    public Integer getScore() {
+        if (votes == null || votes.isEmpty()) {
+            return 0;
+        }
+        return votes.stream()
+                .mapToInt(vote -> vote.getType() == VoteType.POSITIVE ? 1 : -1)
+                .sum();
+    }
+
+    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
+    private List<Post> answers;
+
 }
 
