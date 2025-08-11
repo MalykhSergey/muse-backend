@@ -10,7 +10,7 @@ import ru.t1.debut.muse.dto.UserDTO;
 import java.util.Optional;
 
 public interface PostService {
-    Page<PostDTO> getPosts(Optional<String> query, Pageable pageable);
+    Page<PostDTO> getPosts(Optional<String> query, Pageable pageable, UserDTO userDTO);
 
     PostDTO createPost(CreatePostRequest createPostRequest, UserDTO userDTO);
 
@@ -18,5 +18,5 @@ public interface PostService {
 
     void deletePost(Long id, UserDTO author);
 
-    PostDTO getPost(Long id);
+    PostDTO getPost(Long id, UserDTO userDTO);
 }

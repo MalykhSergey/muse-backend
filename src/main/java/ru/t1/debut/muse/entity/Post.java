@@ -42,17 +42,6 @@ public class Post {
     private LocalDateTime updated;
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
     private List<Vote> votes;
-
-    @Transient
-    public Integer getScore() {
-        if (votes == null || votes.isEmpty()) {
-            return 0;
-        }
-        return votes.stream()
-                .mapToInt(vote -> vote.getType() == VoteType.POSITIVE ? 1 : -1)
-                .sum();
-    }
-
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
     private List<Post> answers;
 

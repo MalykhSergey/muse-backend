@@ -28,9 +28,10 @@ class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Page<PostDTO> getPosts(Optional<String> query, Pageable pageable) {
-        return query.map(s -> postRepository.search(s, pageable).map(PostDTO::fromPost))
-                .orElseGet(() -> postRepository.findAll(pageable).map(PostDTO::fromPost));
+    public Page<PostDTO> getPosts(Optional<String> query, Pageable pageable, UserDTO userDTO) {
+        User authUser = userService.getUserByInternalId(userDTO.internalId()).orElseGet(() -> userService.createUser(userDTO));
+        return query.map(s -> postRepository.searchPosts(s, pageable, authUser.getId()).map(PostDTO::fromPostSearchResult))
+                .orElseGet(() -> postRepository.getAll(pageable, authUser.getId()).map(PostDTO::fromPostSearchResult));
     }
 
     @Override
@@ -54,7 +55,7 @@ class PostServiceImpl implements PostService {
                 null,
                 null
         );
-        return PostDTO.fromPost(postRepository.save(post));
+        return PostDTO.fromNewPost(postRepository.save(post));
     }
 
     @Override
@@ -88,11 +89,13 @@ class PostServiceImpl implements PostService {
 
     @Override
     public void deletePost(Long id, UserDTO author) {
-        postRepository.deleteByIdAndAuthor_InternalId(id, author.internalId());
+        User authUser = userService.getUserByInternalId(author.internalId()).get();
+        postRepository.deleteByIdAndAuthorId(id, authUser.getId());
     }
 
     @Override
-    public PostDTO getPost(Long id) {
-        return postRepository.findById(id).map(PostDTO::fromPost).orElseThrow(ResourceNotFoundException::new);
+    public PostDTO getPost(Long id, UserDTO userDTO) {
+        User authUser = userService.getUserByInternalId(userDTO.internalId()).orElseGet(() -> userService.createUser(userDTO));
+        return postRepository.getById(id, authUser.getId()).map(PostDTO::fromPostSearchResult).orElseThrow(ResourceNotFoundException::new);
     }
 }

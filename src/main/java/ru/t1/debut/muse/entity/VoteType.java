@@ -1,5 +1,5 @@
 package ru.t1.debut.muse.entity;
 
-enum VoteType {
+public enum VoteType {
     POSITIVE, NEGATIVE
 }

@@ -33,8 +33,9 @@ public class PostController {
             description = "Возвращает пагинированный список всех постов"
     )
     @GetMapping
-    public ResponseEntity<Page<PostDTO>> getPosts(@RequestParam(value = "query", required = false) Optional<String> query, Pageable pageable) {
-        return ResponseEntity.ok(postService.getPosts(query, pageable));
+    public ResponseEntity<Page<PostDTO>> getPosts(@RequestParam(value = "query", required = false) Optional<String> query, Pageable pageable, @AuthenticationPrincipal Jwt user) {
+        UserDTO userDTO = new UserDTO(user);
+        return ResponseEntity.ok(postService.getPosts(query, pageable, userDTO));
     }
 
     @Operation(
@@ -42,8 +43,9 @@ public class PostController {
             description = "Возвращает пост по указанному идентификатору"
     )
     @GetMapping("/{id}")
-    public ResponseEntity<PostDTO> getPost(@PathVariable Long id) {
-        return ResponseEntity.ok(postService.getPost(id));
+    public ResponseEntity<PostDTO> getPost(@PathVariable Long id, @AuthenticationPrincipal Jwt user) {
+        UserDTO userDTO = new UserDTO(user);
+        return ResponseEntity.ok(postService.getPost(id, userDTO));
     }
 
     @Operation(
