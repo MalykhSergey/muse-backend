@@ -61,5 +61,5 @@ spec:
                 configMapKeyRef:
                   name: muse-config
                   key: DB_URL
- 
+          resources:
 {{ toYaml .Values.resources | indent 12 }}
