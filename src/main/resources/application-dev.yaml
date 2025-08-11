@@ -17,7 +17,11 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:9090/realms/users-auth
+          issuer-uri: ${ISSUER_URI}
+  data:
+    web:
+      pageable:
+        max-page-size: 30
   messages:
     basename: messages
 springdoc:
