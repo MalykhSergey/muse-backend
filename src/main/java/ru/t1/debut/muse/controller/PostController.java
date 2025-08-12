@@ -30,12 +30,16 @@ public class PostController {
 
     @Operation(
             summary = "Получить список постов",
-            description = "Возвращает пагинированный список всех постов"
+            description = "Возвращает пагинированный список постов, по параметру поиска или постов, если параметр не задан"
     )
     @GetMapping
-    public ResponseEntity<Page<PostDTO>> getPosts(@RequestParam(value = "query", required = false) Optional<String> query, Pageable pageable, @AuthenticationPrincipal Jwt user) {
+    public ResponseEntity<Page<PostDTO>> getPosts(
+            @RequestParam(value = "query", required = false) Optional<String> query,
+            @RequestParam(value = "parentId", required = false) Long parentId,
+            Pageable pageable,
+            @AuthenticationPrincipal Jwt user) {
         UserDTO userDTO = new UserDTO(user);
-        return ResponseEntity.ok(postService.getPosts(query, pageable, userDTO));
+        return ResponseEntity.ok(postService.getPosts(parentId, userDTO, query, pageable));
     }
 
     @Operation(

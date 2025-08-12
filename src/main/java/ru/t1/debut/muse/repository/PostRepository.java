@@ -5,12 +5,11 @@ import org.springframework.data.domain.Pageable;
 import ru.t1.debut.muse.entity.Post;
 
 import java.util.Optional;
-import java.util.UUID;
 
 public interface PostRepository {
     public Page<PostSearchResult> searchPosts(String q, Pageable pageable, Long userId);
 
-    public Page<PostSearchResult> getAll(Pageable pageable, Long userId);
+    public Page<PostSearchResult> getAllByParentId(Pageable pageable, Long userId, Long parentId);
 
     public Optional<PostSearchResult> getById(Long postId, Long userId);
 

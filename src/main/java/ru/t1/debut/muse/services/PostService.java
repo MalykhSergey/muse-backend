@@ -10,7 +10,7 @@ import ru.t1.debut.muse.dto.UserDTO;
 import java.util.Optional;
 
 public interface PostService {
-    Page<PostDTO> getPosts(Optional<String> query, Pageable pageable, UserDTO userDTO);
+    Page<PostDTO> getPosts(Long parentId, UserDTO userDTO, Optional<String> query, Pageable pageable);
 
     PostDTO createPost(CreatePostRequest createPostRequest, UserDTO userDTO);
 

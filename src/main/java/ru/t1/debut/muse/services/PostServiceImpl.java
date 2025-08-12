@@ -28,10 +28,10 @@ class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Page<PostDTO> getPosts(Optional<String> query, Pageable pageable, UserDTO userDTO) {
+    public Page<PostDTO> getPosts(Long parentId, UserDTO userDTO, Optional<String> query, Pageable pageable) {
         User authUser = userService.getUserByInternalId(userDTO.internalId()).orElseGet(() -> userService.createUser(userDTO));
         return query.map(s -> postRepository.searchPosts(s, pageable, authUser.getId()).map(PostDTO::fromPostSearchResult))
-                .orElseGet(() -> postRepository.getAll(pageable, authUser.getId()).map(PostDTO::fromPostSearchResult));
+                .orElseGet(() -> postRepository.getAllByParentId(pageable, authUser.getId(), parentId).map(PostDTO::fromPostSearchResult));
     }
 
     @Override
