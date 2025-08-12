@@ -61,5 +61,10 @@ spec:
                 configMapKeyRef:
                   name: muse-config
                   key: DB_URL
+            - name: SPRING_PROFILES_ACTIVE
+              valueFrom:
+                configMapKeyRef:
+                  name: muse-config
+                  key: SPRING_PROFILE
           resources:
 {{ toYaml .Values.resources | indent 12 }}
