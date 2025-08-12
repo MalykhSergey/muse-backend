@@ -1,0 +1,24 @@
+replicaCount: 1
+
+image:
+  repository: change/me
+  tag: "latest"
+  pullPolicy: IfNotPresent
+  pullSecrets:
+    - name: gitlab-registry-secret-muse-backend
+
+service:
+  type: ClusterIP
+  port: 8080
+
+postgres:
+  host: muse-postgres.muse.svc.cluster.local
+  port: 5432
+  database: muse
+  url: postgres-postgresql.muse.svc.cluster.local:5432/muse
+  user: spring
+
+issuer:
+  uri:  http://keycloak.default.svc.cluster.local:8080/realms/master
+
+resources: {}
