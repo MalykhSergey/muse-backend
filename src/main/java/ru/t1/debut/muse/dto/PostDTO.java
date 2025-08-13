@@ -44,7 +44,7 @@ public final class PostDTO {
         );
     }
 
-    public static PostDTO fromPostSearchResult(PostSearchResult post) {
+    public static PostDTO fromPostSearchResult(PostSearchProjection post) {
         UserType userType = post.getUserType() == null ? null : UserType.valueOf(post.getUserType());
         UserDTO author = new UserDTO(post.getAuthorId(), post.getExternalId(), post.getInternalId(), userType, post.getAuthorName());
         return new PostDTO(
@@ -55,8 +55,8 @@ public final class PostDTO {
                 author,
                 post.getParentId(),
                 post.getAnswerId(),
-                post.getCreated().toLocalDateTime(),
-                post.getUpdated().toLocalDateTime(),
+                post.getCreated(),
+                post.getUpdated(),
                 post.getScore(),
                 post.getAnswerCount(),
                 post.getUserVote() == null ? null : VoteType.valueOf(post.getUserVote())

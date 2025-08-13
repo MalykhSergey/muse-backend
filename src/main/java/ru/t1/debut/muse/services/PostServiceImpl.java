@@ -2,6 +2,7 @@ package ru.t1.debut.muse.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.t1.debut.muse.dto.CreatePostRequest;
@@ -12,8 +13,10 @@ import ru.t1.debut.muse.entity.Post;
 import ru.t1.debut.muse.entity.User;
 import ru.t1.debut.muse.exception.ResourceNotFoundException;
 import ru.t1.debut.muse.repository.PostRepository;
+import ru.t1.debut.muse.repository.PostSearchProjection;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -30,8 +33,11 @@ class PostServiceImpl implements PostService {
     @Override
     public Page<PostDTO> getPosts(Long parentId, UserDTO userDTO, Optional<String> query, Pageable pageable) {
         User authUser = userService.getUserByInternalId(userDTO.internalId()).orElseGet(() -> userService.createUser(userDTO));
-        return query.map(s -> postRepository.searchPosts(s, pageable, authUser.getId()).map(PostDTO::fromPostSearchResult))
-                .orElseGet(() -> postRepository.getAllByParentId(pageable, authUser.getId(), parentId).map(PostDTO::fromPostSearchResult));
+        List<PostSearchProjection> result = query.map(s -> postRepository.searchPosts(s, authUser.getId(), pageable.getPageSize(), pageable.getOffset()))
+                .orElseGet(() -> postRepository.getAllByParentId(authUser.getId(), parentId, pageable.getPageSize(), pageable.getOffset()));
+        PostSearchProjection first = result.getFirst();
+        long total = first == null ? 0 : first.getTotalCount();
+        return new PageImpl<>(result.stream().map(PostDTO::fromPostSearchResult).toList(), pageable, total);
     }
 
     @Override
@@ -96,6 +102,6 @@ class PostServiceImpl implements PostService {
     @Override
     public PostDTO getPost(Long id, UserDTO userDTO) {
         User authUser = userService.getUserByInternalId(userDTO.internalId()).orElseGet(() -> userService.createUser(userDTO));
-        return postRepository.getById(id, authUser.getId()).map(PostDTO::fromPostSearchResult).orElseThrow(ResourceNotFoundException::new);
+        return postRepository.getById(authUser.getId(), id).map(PostDTO::fromPostSearchResult).orElseThrow(ResourceNotFoundException::new);
     }
 }
