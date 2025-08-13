@@ -6,7 +6,7 @@ import ru.t1.debut.muse.entity.Post;
 import ru.t1.debut.muse.entity.PostType;
 import ru.t1.debut.muse.entity.UserType;
 import ru.t1.debut.muse.entity.VoteType;
-import ru.t1.debut.muse.repository.PostSearchResult;
+import ru.t1.debut.muse.repository.PostSearchProjection;
 
 import java.time.LocalDateTime;
 
@@ -23,7 +23,7 @@ public final class PostDTO {
     private LocalDateTime created;
     private LocalDateTime updated;
     private Long score;
-    private Long answers_count;
+    private Long answersCount;
     private VoteType usersVote;
 
 
