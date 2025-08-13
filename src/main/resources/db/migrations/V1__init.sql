@@ -54,7 +54,7 @@ CREATE TABLE tags (
     name VARCHAR(255) UNIQUE NOT NULL,
     post_id BIGINT REFERENCES posts(id)
 );
-
+-- Таблица связей тего и постов
 CREATE TABLE posts_tags (
     post_id BIGINT REFERENCES posts(id) NOT NULL,
     tag_id BIGINT REFERENCES tags(id) NOT NULL,

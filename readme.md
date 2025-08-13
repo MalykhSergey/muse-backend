@@ -1,8 +1,10 @@
 # Сервис корпоративных обсуждений Муза
 
-Документация проекта: https://github.com/MalykhSergey/muse-service/deployments/github-pages
+Документация проекта: https://malykhsergey.github.io/muse-service/
 
-Запуск в Docker: 
+## Для локального развёртывания
+
+Запуск в Docker:
 ```shell 
     docker compose up -d muse
 ```
