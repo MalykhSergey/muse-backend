@@ -22,6 +22,6 @@ postgres:
   user: spring
 
 issuer:
-  uri:  http://keycloak.default.svc.cluster.local:8080/realms/master
+  uri:  http://keycloak.keycloak.svc.cluster.local:8080/realms/users-auth
 
 resources: {}

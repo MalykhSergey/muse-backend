@@ -60,7 +60,7 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: muse-config
-                  key: DB_URL
+                  key: ISSUER_URI
             - name: SPRING_PROFILES_ACTIVE
               valueFrom:
                 configMapKeyRef:
