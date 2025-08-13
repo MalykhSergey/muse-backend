@@ -1,5 +1,8 @@
 replicaCount: 1
 
+spring:
+  profile: dev
+
 image:
   repository: change/me
   tag: "latest"
