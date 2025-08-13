@@ -8,9 +8,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import ru.t1.debut.muse.dto.UserDTO;
 import ru.t1.debut.muse.dto.VoteDTO;
-import ru.t1.debut.muse.entity.Vote;
 import ru.t1.debut.muse.entity.VoteType;
-import ru.t1.debut.muse.services.VoteService;
+import ru.t1.debut.muse.service.VoteService;
 
 @RestController
 @RequestMapping("/posts/{id}/votes")

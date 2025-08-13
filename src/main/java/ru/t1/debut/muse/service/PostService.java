@@ -1,4 +1,4 @@
-package ru.t1.debut.muse.services;
+package ru.t1.debut.muse.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

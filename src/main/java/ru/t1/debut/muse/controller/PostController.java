@@ -13,7 +13,7 @@ import ru.t1.debut.muse.dto.CreatePostRequest;
 import ru.t1.debut.muse.dto.PostDTO;
 import ru.t1.debut.muse.dto.UpdatePostRequest;
 import ru.t1.debut.muse.dto.UserDTO;
-import ru.t1.debut.muse.services.PostService;
+import ru.t1.debut.muse.service.PostService;
 
 import java.util.Optional;
 
