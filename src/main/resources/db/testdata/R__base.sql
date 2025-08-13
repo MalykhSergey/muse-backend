@@ -107,3 +107,17 @@ INSERT INTO tags_subscribes (tag_id, user_id) VALUES
 (7, 1),
 (8, 2),
 (9, 3);
+
+INSERT INTO posts_tags (post_id, tag_id) VALUES
+(1, 1),
+(1, 3),
+(1, 5),
+(2, 2),
+(3, 4),
+(4, 1),
+(4, 2),
+(5, 3),
+(6, 5),
+(7, 1),
+(8, 2),
+(9, 3);
