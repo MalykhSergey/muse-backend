@@ -1,5 +1,7 @@
 package ru.t1.debut.muse.dto;
 
+import com.fasterxml.jackson.annotation.JsonRawValue;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import ru.t1.debut.muse.entity.Post;
@@ -25,6 +27,12 @@ public final class PostDTO {
     private Long score;
     private Long answersCount;
     private VoteType usersVote;
+    @JsonRawValue
+    @Schema(
+            example = "[{\"id\": 1, \"name\": \"java\", \"postId\": 1}, {\"id\": 2, \"name\": \"spring\", \"postId\": 2}]",
+            type = "string"
+    )
+    private String tags;
 
 
     public static PostDTO fromNewPost(Post post) {
@@ -40,6 +48,7 @@ public final class PostDTO {
                 post.getUpdated(),
                 0L,
                 0L,
+                null,
                 null
         );
     }
@@ -59,7 +68,8 @@ public final class PostDTO {
                 post.getUpdated(),
                 post.getScore(),
                 post.getAnswerCount(),
-                post.getUserVote() == null ? null : VoteType.valueOf(post.getUserVote())
+                post.getUserVote() == null ? null : VoteType.valueOf(post.getUserVote()),
+                post.getTags()
         );
     }
 

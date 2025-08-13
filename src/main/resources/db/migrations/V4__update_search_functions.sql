@@ -1,3 +1,7 @@
+DROP FUNCTION get_posts_rich(BIGINT, BIGINT, INT, BIGINT);
+DROP FUNCTION get_post_rich(BIGINT, BIGINT);
+DROP FUNCTION search_posts_function(TEXT, BIGINT, INT, BIGINT);
+
 CREATE OR REPLACE VIEW post_base_view AS
 SELECT
     p.id,
@@ -26,9 +30,16 @@ SELECT
         SELECT COUNT(*)
         FROM posts a
         WHERE a.parent_id = p.id
-    ), 0) AS answer_count
+    ), 0) AS answer_count,
+    jsonb_agg(DISTINCT jsonb_build_object('id', t.id, 'name', t.name, 'postId', t.post_id)) FILTER (WHERE t.id IS NOT NULL) AS tags
 FROM posts p
-LEFT JOIN users u ON p.author_id = u.id;
+LEFT JOIN users u ON p.author_id = u.id
+LEFT JOIN posts_tags pt ON p.id = pt.post_id
+LEFT JOIN tags t ON pt.tag_id = t.id
+GROUP BY
+p.id, p.title, p.body, p.post_type, p.author_id,
+u.external_id, u.internal_id, u.user_type, u.name,
+p.parent_id, p.answer_id, p.created, p.updated, p.search_vector;
 
 CREATE OR REPLACE FUNCTION get_posts_rich(
     user_id_param BIGINT,
@@ -53,6 +64,7 @@ RETURNS TABLE (
     score BIGINT,
     answer_count BIGINT,
     vote_type vote_type,
+    tags JSONB,
     total_count BIGINT
 ) AS $$
 BEGIN
@@ -74,7 +86,8 @@ BEGIN
                 pbv.updated,
                 pbv.score,
                 pbv.answer_count,
-                v.type
+                v.type,
+                pbv.tags
         FROM post_base_view pbv
         LEFT JOIN votes v ON pbv.id = v.post_id AND user_id_param = v.author_id
         WHERE
@@ -110,7 +123,8 @@ RETURNS TABLE (
     updated TIMESTAMP,
     score BIGINT,
     answer_count BIGINT,
-    vote_type vote_type
+    vote_type vote_type,
+    tags JSONB
 ) AS $$
 BEGIN
     RETURN QUERY
@@ -130,7 +144,8 @@ BEGIN
             pbv.updated,
             pbv.score,
             pbv.answer_count,
-            v.type
+            v.type,
+            pbv.tags
     FROM post_base_view pbv
     LEFT JOIN votes v ON pbv.id = v.post_id AND user_id_param = v.author_id
     WHERE pbv.id = post_id_param;
@@ -161,6 +176,7 @@ RETURNS TABLE (
     score BIGINT,
     answer_count BIGINT,
     vote_type vote_type,
+    tags JSONB,
     total_count BIGINT
 ) AS $$
 BEGIN
@@ -185,6 +201,7 @@ BEGIN
             pbv.score,
             pbv.answer_count,
             v.type,
+            pbv.tags,
             COUNT(*) OVER() AS total_count
     FROM post_base_view as pbv
     LEFT JOIN votes v ON pbv.id = v.post_id AND user_id_param = v.author_id

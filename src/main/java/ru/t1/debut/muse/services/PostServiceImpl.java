@@ -83,7 +83,7 @@ class PostServiceImpl implements PostService {
                 null,
                 now, null, null
         );
-        int updated = 0;
+        int updated;
         if (answer == null)
             updated = postRepository.updatePostWithoutAnswerByIdAndAuthorId(post);
         else
