@@ -31,6 +31,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/docs/**").permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
