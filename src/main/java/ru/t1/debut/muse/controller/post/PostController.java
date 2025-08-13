@@ -1,9 +1,8 @@
-package ru.t1.debut.muse.controller;
+package ru.t1.debut.muse.controller.post;
 
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -34,12 +33,15 @@ public class PostController {
     )
     @GetMapping
     public ResponseEntity<Page<PostDTO>> getPosts(
-            @RequestParam(value = "query", required = false) Optional<String> query,
-            @RequestParam(value = "parentId", required = false) Long parentId,
-            Pageable pageable,
+            @RequestParam(required = false) Optional<String> query,
+            @RequestParam(required = false) Long parentId,
+            @RequestParam int page,
+            @RequestParam int size,
+            @RequestParam(required = false) SortBy sortBy,
+            @RequestParam(required = false) SortDir sortDir,
             @AuthenticationPrincipal Jwt user) {
         UserDTO userDTO = new UserDTO(user);
-        return ResponseEntity.ok(postService.getPosts(parentId, userDTO, query, pageable));
+        return ResponseEntity.ok(postService.getPosts(parentId, userDTO, query, page, size, sortBy, sortDir));
     }
 
     @Operation(
@@ -85,3 +87,5 @@ public class PostController {
     }
 
 }
+
+

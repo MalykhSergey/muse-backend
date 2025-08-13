@@ -3,8 +3,10 @@ package ru.t1.debut.muse.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import ru.t1.debut.muse.controller.post.SortBy;
+import ru.t1.debut.muse.controller.post.SortDir;
 import ru.t1.debut.muse.dto.CreatePostRequest;
 import ru.t1.debut.muse.dto.PostDTO;
 import ru.t1.debut.muse.dto.UpdatePostRequest;
@@ -31,13 +33,14 @@ class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Page<PostDTO> getPosts(Long parentId, UserDTO userDTO, Optional<String> query, Pageable pageable) {
+    public Page<PostDTO> getPosts(Long parentId, UserDTO userDTO, Optional<String> query, int page, int size, SortBy sortBy, SortDir sortDir) {
         User authUser = userService.getUserByInternalId(userDTO.internalId()).orElseGet(() -> userService.createUser(userDTO));
-        List<PostSearchProjection> result = query.map(s -> postRepository.searchPosts(s, authUser.getId(), pageable.getPageSize(), pageable.getOffset()))
-                .orElseGet(() -> postRepository.getAllByParentId(authUser.getId(), parentId, pageable.getPageSize(), pageable.getOffset()));
+        long offset = (long) page * size;
+        List<PostSearchProjection> result = query.map(s -> postRepository.searchPosts(s, authUser.getId(), size, offset, sortBy.name(), sortDir.name()))
+                .orElseGet(() -> postRepository.getAllByParentId(authUser.getId(), parentId, size, offset, sortBy.name(), sortDir.name()));
         PostSearchProjection first = result.getFirst();
         long total = first == null ? 0 : first.getTotalCount();
-        return new PageImpl<>(result.stream().map(PostDTO::fromPostSearchResult).toList(), pageable, total);
+        return new PageImpl<>(result.stream().map(PostDTO::fromPostSearchResult).toList(), PageRequest.of(page, size), total);
     }
 
     @Override
