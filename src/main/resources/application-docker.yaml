@@ -10,10 +10,8 @@ spring:
     hibernate:
       ddl-auto: none
   flyway:
-    locations: classpath:db/migrations
+    locations: classpath:db/migrations,classpath:db/testdata
     validate-on-migrate: true
-    baseline-on-migrate: true
-    baseline-version: 2
     out-of-order: false
   security:
     cors: false

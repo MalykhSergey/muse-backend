@@ -9,7 +9,7 @@ services:
     environment:
       DB_URL: postgres-spring:5432/muse
       ISSUER_URI: http://keycloak:8080/realms/users-auth
-      SPRING_PROFILES_ACTIVE: dev
+      SPRING_PROFILES_ACTIVE: docker
     volumes:
       - maven:/root/.m2
     ports:
@@ -49,8 +49,6 @@ services:
       POSTGRES_USER: spring
       POSTGRES_PASSWORD: boot
       POSTGRES_DB: muse
-    volumes:
-      - postgres_spring_data:/var/lib/postgresql/data
     ports:
       - 5432:5432
 
@@ -67,8 +65,6 @@ services:
       - 5435:5432
 
 volumes:
-  postgres_spring_data:
-    driver: local
   postgres_keycloak_data:
     driver: local
   maven:

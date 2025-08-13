@@ -72,9 +72,7 @@ INSERT INTO tags (name, post_id) VALUES
 ('sql', 1),
 ('optimization', 1),
 ('database', 1),
-('sql', 2),
 ('joins', 2),
-('database', 3),
 ('indexing', 3),
 ('postgresql', 4),
 ('null', 4),
@@ -108,6 +106,4 @@ INSERT INTO tags_subscribes (tag_id, user_id) VALUES
 (6, 5),
 (7, 1),
 (8, 2),
-(9, 3),
-(10, 4),
-(11, 5);
+(9, 3);
