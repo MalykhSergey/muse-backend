@@ -36,7 +36,7 @@ public class WebSecurityConfig {
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(withDefaults())
                 );
-        if (cors.equals("disabled")) {
+        if (cors.equals("false")) {
             http.cors(AbstractHttpConfigurer::disable);
         }
         return http.build();
