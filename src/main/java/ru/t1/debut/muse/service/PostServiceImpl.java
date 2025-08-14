@@ -34,7 +34,7 @@ class PostServiceImpl implements PostService {
 
     @Override
     public Page<PostDTO> getPosts(Long parentId, UserDTO userDTO, Optional<String> query, int page, int size, SortBy sortBy, SortDir sortDir) {
-        User authUser = userService.getUserByInternalId(userDTO.internalId()).orElseGet(() -> userService.createUser(userDTO));
+        User authUser = userService.getUser(userDTO);
         long offset = (long) page * size;
         List<PostSearchProjection> result = query.map(s -> postRepository.searchPosts(s, authUser.getId(), size, offset, sortBy.name(), sortDir.name()))
                 .orElseGet(() -> postRepository.getAllByParentId(authUser.getId(), parentId, size, offset, sortBy.name(), sortDir.name()));
@@ -44,7 +44,7 @@ class PostServiceImpl implements PostService {
 
     @Override
     public PostDTO createPost(CreatePostRequest createPostRequest, UserDTO authorDTO) {
-        User author = userService.getUserByInternalId(authorDTO.internalId()).orElseGet(() -> userService.createUser(authorDTO));
+        User author = userService.getUser(authorDTO);
         Post parent = null;
         if (createPostRequest.getParentId() != null) {
             parent = new Post(createPostRequest.getParentId(), null, null, null, null, null, null, null, null, null, null);
@@ -68,7 +68,7 @@ class PostServiceImpl implements PostService {
 
     @Override
     public void updatePost(UpdatePostRequest updatePostRequest, Long id, UserDTO authorDTO) {
-        User author = userService.getUserByInternalId(authorDTO.internalId()).orElseGet(() -> userService.createUser(authorDTO));
+        User author = userService.getUser(authorDTO);
         Post answer = null;
         if (updatePostRequest.getAnswerId() != null) {
             answer = new Post(updatePostRequest.getAnswerId(), null, null, null, null, null, null, null, null, null, null);
@@ -97,13 +97,13 @@ class PostServiceImpl implements PostService {
 
     @Override
     public void deletePost(Long id, UserDTO author) {
-        User authUser = userService.getUserByInternalId(author.internalId()).get();
+        User authUser = userService.getUser(author);
         postRepository.deleteByIdAndAuthorId(id, authUser.getId());
     }
 
     @Override
     public PostDTO getPost(Long id, UserDTO userDTO) {
-        User authUser = userService.getUserByInternalId(userDTO.internalId()).orElseGet(() -> userService.createUser(userDTO));
+        User authUser = userService.getUser(userDTO);
         return postRepository.getById(authUser.getId(), id).map(PostDTO::fromPostSearchResult).orElseThrow(ResourceNotFoundException::new);
     }
 }
