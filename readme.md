@@ -2,6 +2,10 @@
 
 Документация проекта: https://malykhsergey.github.io/muse-service/
 
+*Для миграций БД используется Flyway. Схема БД в src\main\resources\db\migrations*
+
+*Авторизация через внешний сервис. В данном случае KeyCloak.*
+
 ## Для локального развёртывания
 
 Запуск в Docker:
