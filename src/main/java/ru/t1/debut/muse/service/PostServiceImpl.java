@@ -38,8 +38,7 @@ class PostServiceImpl implements PostService {
         long offset = (long) page * size;
         List<PostSearchProjection> result = query.map(s -> postRepository.searchPosts(s, authUser.getId(), size, offset, sortBy.name(), sortDir.name()))
                 .orElseGet(() -> postRepository.getAllByParentId(authUser.getId(), parentId, size, offset, sortBy.name(), sortDir.name()));
-        PostSearchProjection first = result.getFirst();
-        long total = first == null ? 0 : first.getTotalCount();
+        long total = result.isEmpty() ? 0 : result.getFirst().getTotalCount();
         return new PageImpl<>(result.stream().map(PostDTO::fromPostSearchResult).toList(), PageRequest.of(page, size), total);
     }
 
