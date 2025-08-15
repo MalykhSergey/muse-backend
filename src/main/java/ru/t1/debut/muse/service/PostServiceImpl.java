@@ -1,5 +1,7 @@
 package ru.t1.debut.muse.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -12,6 +14,7 @@ import ru.t1.debut.muse.dto.PostDTO;
 import ru.t1.debut.muse.dto.UpdatePostRequest;
 import ru.t1.debut.muse.dto.UserDTO;
 import ru.t1.debut.muse.entity.Post;
+import ru.t1.debut.muse.entity.Tag;
 import ru.t1.debut.muse.entity.User;
 import ru.t1.debut.muse.exception.ResourceNotFoundException;
 import ru.t1.debut.muse.repository.PostRepository;
@@ -20,16 +23,20 @@ import ru.t1.debut.muse.repository.PostSearchProjection;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final UserService userService;
+    private final ObjectMapper objectMapper;
 
     @Autowired
-    PostServiceImpl(PostRepository postRepository, UserService userService) {
+    PostServiceImpl(PostRepository postRepository, UserService userService, ObjectMapper objectMapper) {
         this.postRepository = postRepository;
         this.userService = userService;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -42,14 +49,16 @@ class PostServiceImpl implements PostService {
         return new PageImpl<>(result.stream().map(PostDTO::fromPostSearchResult).toList(), PageRequest.of(page, size), total);
     }
 
+    @SneakyThrows
     @Override
     public PostDTO createPost(CreatePostRequest createPostRequest, UserDTO authorDTO) {
         User author = userService.getUser(authorDTO);
         Post parent = null;
         if (createPostRequest.getParentId() != null) {
-            parent = new Post(createPostRequest.getParentId(), null, null, null, null, null, null, null, null, null, null);
+            parent = new Post(createPostRequest.getParentId(), null, null, null, null, null, null, null, null, null, null, null);
         }
         LocalDateTime now = LocalDateTime.now();
+        Set<Tag> tags = createPostRequest.getTags().stream().map(tag -> new Tag(tag.id(), null, null,null)).collect(Collectors.toSet());
         Post post = new Post(
                 null,
                 createPostRequest.getTitle(),
@@ -61,9 +70,10 @@ class PostServiceImpl implements PostService {
                 now,
                 now,
                 null,
-                null
+                null,
+                tags
         );
-        return PostDTO.fromNewPost(postRepository.save(post));
+        return PostDTO.fromNewPost(postRepository.save(post),objectMapper.writeValueAsString(createPostRequest.getTags()));
     }
 
     @Override
@@ -71,28 +81,20 @@ class PostServiceImpl implements PostService {
         User author = userService.getUser(authorDTO);
         Post answer = null;
         if (updatePostRequest.getAnswerId() != null) {
-            answer = new Post(updatePostRequest.getAnswerId(), null, null, null, null, null, null, null, null, null, null);
+            answer = new Post(updatePostRequest.getAnswerId(), null, null, null, null, null, null, null, null, null, null, null);
         }
         LocalDateTime now = LocalDateTime.now();
-        Post post = new Post(
-                id,
-                updatePostRequest.getTitle(),
-                updatePostRequest.getBody(),
-                null,
-                author,
-                null,
-                answer,
-                null,
-                now, null, null
-        );
-        int updated;
-        if (answer == null)
-            updated = postRepository.updatePostWithoutAnswerByIdAndAuthorId(post);
-        else
-            updated = postRepository.updatePostWithAnswerByIdAndAuthorId(post);
-        if (updated == 0) {
-            throw new ResourceNotFoundException();
+        Set<Tag> tags = updatePostRequest.getTags().stream().map(tag -> new Tag(tag.id(), null, null,null)).collect(Collectors.toSet());
+        Post post = postRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
+        if (!post.getAuthor().getId().equals(author.getId())) {
+            return;
         }
+        post.setTitle(updatePostRequest.getTitle());
+        post.setBody(updatePostRequest.getBody());
+        post.setAnswer(answer);
+        post.setUpdated(now);
+        post.setTags(tags);
+        postRepository.save(post);
     }
 
     @Override

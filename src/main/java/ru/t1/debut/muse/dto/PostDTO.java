@@ -35,7 +35,7 @@ public final class PostDTO {
     private String tags;
 
 
-    public static PostDTO fromNewPost(Post post) {
+    public static PostDTO fromNewPost(Post post, String tags) {
         return new PostDTO(
                 post.getId(),
                 post.getTitle(),
@@ -49,7 +49,7 @@ public final class PostDTO {
                 0L,
                 0L,
                 null,
-                null
+                tags
         );
     }
 

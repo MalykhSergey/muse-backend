@@ -46,6 +46,13 @@ public class Post {
     private List<Vote> votes;
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
     private List<Post> answers;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "posts_tags",
+            joinColumns = @JoinColumn(name = "post_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private Set<Tag> tags;
 
     @Override
     public final boolean equals(Object o) {
