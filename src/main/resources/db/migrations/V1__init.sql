@@ -26,7 +26,14 @@ CREATE TABLE posts (
     parent_id BIGINT REFERENCES posts(id) ON DELETE SET NULL,
     answer_id BIGINT REFERENCES posts(id) ON DELETE SET NULL,
     created TIMESTAMP,
-    updated TIMESTAMP
+    updated TIMESTAMP,
+    search_vector tsvector
+        GENERATED ALWAYS AS (
+          setweight(to_tsvector('english', coalesce(title,'')), 'A') ||
+          setweight(to_tsvector('english', coalesce(body,'')),  'B') ||
+          setweight(to_tsvector('russian',  coalesce(title,'')), 'A') ||
+          setweight(to_tsvector('russian',  coalesce(body,'')),  'B')
+        ) STORED
 );
 
 -- Таблица комментариев

@@ -13,7 +13,7 @@ spring:
     locations: classpath:db/migrations
     validate-on-migrate: true
     baseline-on-migrate: true
-    baseline-version: 2
+    baseline-version: 1
     out-of-order: false
   security:
     cors: false
