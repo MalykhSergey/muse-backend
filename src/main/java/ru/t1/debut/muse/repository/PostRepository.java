@@ -5,8 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import ru.t1.debut.muse.controller.post.SortBy;
-import ru.t1.debut.muse.controller.post.SortDir;
 import ru.t1.debut.muse.entity.Post;
 
 import java.util.List;

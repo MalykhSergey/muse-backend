@@ -1,6 +1,7 @@
 package ru.t1.debut.muse.controller.post;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -59,7 +60,7 @@ public class PostController {
             description = "Создает новый пост от имени аутентифицированного пользователя"
     )
     @PostMapping
-    public ResponseEntity<PostDTO> createPost(@RequestBody CreatePostRequest createPostRequest, @AuthenticationPrincipal Jwt user) {
+    public ResponseEntity<PostDTO> createPost(@Valid @RequestBody CreatePostRequest createPostRequest, @AuthenticationPrincipal Jwt user) {
         UserDTO author = new UserDTO(user);
         return new ResponseEntity<>(postService.createPost(createPostRequest, author), HttpStatus.CREATED);
     }
@@ -70,7 +71,7 @@ public class PostController {
     )
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updatePost(@PathVariable Long id, @RequestBody UpdatePostRequest updatePostRequest, @AuthenticationPrincipal Jwt user) {
+    public void updatePost(@PathVariable Long id, @Valid @RequestBody UpdatePostRequest updatePostRequest, @AuthenticationPrincipal Jwt user) {
         UserDTO author = new UserDTO(user);
         postService.updatePost(updatePostRequest, id, author);
     }
