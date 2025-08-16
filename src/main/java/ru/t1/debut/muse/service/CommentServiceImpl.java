@@ -1,6 +1,8 @@
 package ru.t1.debut.muse.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.t1.debut.muse.dto.CommentDTO;
 import ru.t1.debut.muse.dto.CreateCommentRequest;
@@ -22,6 +24,11 @@ public class CommentServiceImpl implements CommentService {
     public CommentServiceImpl(CommentRepository commentRepository, UserService userService) {
         this.commentRepository = commentRepository;
         this.userService = userService;
+    }
+
+    @Override
+    public Page<CommentDTO> getPostComments(long postId, Pageable pageable) {
+        return commentRepository.findAllByPost_IdOrderById(postId, pageable).map(comment -> new CommentDTO(comment.getId(), comment.getBody(), new UserDTO(comment.getAuthor()), postId, comment.getCreated(), comment.getUpdated()));
     }
 
     @Override
