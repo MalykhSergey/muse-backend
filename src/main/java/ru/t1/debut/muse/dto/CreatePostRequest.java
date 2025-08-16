@@ -20,5 +20,6 @@ public class CreatePostRequest {
     private PostType postType;
     @Min(1)
     private Long parentId;
+    @NotNull
     private Set<TagDTO> tags;
 }
