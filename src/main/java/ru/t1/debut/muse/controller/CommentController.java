@@ -1,5 +1,6 @@
 package ru.t1.debut.muse.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -35,14 +36,14 @@ public class CommentController {
     }
 
     @PostMapping
-    ResponseEntity<CommentDTO> createComment(@RequestBody CreateCommentRequest createCommentRequest, @AuthenticationPrincipal Jwt authUser) {
+    ResponseEntity<CommentDTO> createComment(@Valid @RequestBody CreateCommentRequest createCommentRequest, @AuthenticationPrincipal Jwt authUser) {
         UserDTO userDTO = new UserDTO(authUser);
         return new ResponseEntity<>(commentService.create(createCommentRequest, userDTO), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    void updateComment(@PathVariable long id, @RequestBody UpdateCommentRequest updateCommentRequest, @AuthenticationPrincipal Jwt authUser) {
+    void updateComment(@PathVariable long id, @Valid @RequestBody UpdateCommentRequest updateCommentRequest, @AuthenticationPrincipal Jwt authUser) {
         UserDTO userDTO = new UserDTO(authUser);
         commentService.update(id, updateCommentRequest, userDTO);
     }
