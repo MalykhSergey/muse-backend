@@ -1,5 +1,6 @@
 package ru.t1.debut.muse.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,11 +19,13 @@ public class TagController {
         this.tagService = tagService;
     }
 
+    @Operation(summary = "Получить список тэгов")
     @GetMapping
     public ResponseEntity<Page<TagDTO>> getTags(Pageable pageable) {
         return ResponseEntity.ok(tagService.getTags(pageable));
     }
 
+    @Operation(summary = "Получить тэг")
     @GetMapping("/{id}")
     public ResponseEntity<TagDTO> getTag(@PathVariable Long id) {
         return ResponseEntity.ok(tagService.getTag(id));

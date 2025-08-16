@@ -62,10 +62,7 @@ public class PostController {
         return new ResponseEntity<>(postService.createPost(createPostRequest, author), HttpStatus.CREATED);
     }
 
-    @Operation(
-            summary = "Обновить пост",
-            description = "Обновляет пост аутентифицированного пользователя"
-    )
+    @Operation(summary = "Устанавливает ответ к посту")
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updatePost(@PathVariable Long id, @Valid @RequestBody UpdatePostRequest updatePostRequest, @AuthenticationPrincipal Jwt user) {

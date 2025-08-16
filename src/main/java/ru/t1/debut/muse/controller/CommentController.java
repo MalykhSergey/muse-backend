@@ -1,5 +1,6 @@
 package ru.t1.debut.muse.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -26,6 +27,7 @@ public class CommentController {
         this.commentService = commentService;
     }
 
+    @Operation(summary = "Получить список комментариев к посту")
     @GetMapping
     ResponseEntity<Page<CommentDTO>> getPostComments(
             @RequestParam("postId") long postId,
@@ -35,12 +37,14 @@ public class CommentController {
         return ResponseEntity.ok(commentService.getPostComments(postId, pageable));
     }
 
+    @Operation(summary = "Создать комментарий")
     @PostMapping
     ResponseEntity<CommentDTO> createComment(@Valid @RequestBody CreateCommentRequest createCommentRequest, @AuthenticationPrincipal Jwt authUser) {
         UserDTO userDTO = new UserDTO(authUser);
         return new ResponseEntity<>(commentService.create(createCommentRequest, userDTO), HttpStatus.CREATED);
     }
 
+    @Operation(summary = "Обновить комментарий")
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void updateComment(@PathVariable long id, @Valid @RequestBody UpdateCommentRequest updateCommentRequest, @AuthenticationPrincipal Jwt authUser) {
@@ -48,6 +52,7 @@ public class CommentController {
         commentService.update(id, updateCommentRequest, userDTO);
     }
 
+    @Operation(summary = "Удалить комментарий")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteComment(@PathVariable long id, @AuthenticationPrincipal Jwt authUser) {
