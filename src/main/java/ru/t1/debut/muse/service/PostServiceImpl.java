@@ -9,10 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.t1.debut.muse.controller.post.SortBy;
 import ru.t1.debut.muse.controller.post.SortDir;
-import ru.t1.debut.muse.dto.CreatePostRequest;
-import ru.t1.debut.muse.dto.PostDTO;
-import ru.t1.debut.muse.dto.UpdatePostRequest;
-import ru.t1.debut.muse.dto.UserDTO;
+import ru.t1.debut.muse.dto.*;
 import ru.t1.debut.muse.entity.Post;
 import ru.t1.debut.muse.entity.Tag;
 import ru.t1.debut.muse.entity.User;
@@ -49,6 +46,13 @@ class PostServiceImpl implements PostService {
         return new PageImpl<>(result.stream().map(PostDTO::fromPostSearchResult).toList(), PageRequest.of(page, size), total);
     }
 
+    // Можно установить ответом пост-вопрос или вообще другой пост
+    @Override
+    public void setAnswer(SetAnswerRequest setAnswerRequest, Long postId, UserDTO userDTO) {
+        User authUser = userService.getUser(userDTO);
+        postRepository.setAnswerByIdAndAuthorId(setAnswerRequest.getAnswerId(), postId, authUser.getId());
+    }
+
     @SneakyThrows
     @Override
     public PostDTO createPost(CreatePostRequest createPostRequest, UserDTO authorDTO) {
@@ -58,7 +62,7 @@ class PostServiceImpl implements PostService {
             parent = new Post(createPostRequest.getParentId(), null, null, null, null, null, null, null, null, null, null, null);
         }
         LocalDateTime now = LocalDateTime.now();
-        Set<Tag> tags = createPostRequest.getTags().stream().map(tag -> new Tag(tag.id(), null, null,null)).collect(Collectors.toSet());
+        Set<Tag> tags = createPostRequest.getTags().stream().map(tag -> new Tag(tag.id(), null, null, null)).collect(Collectors.toSet());
         Post post = new Post(
                 null,
                 createPostRequest.getTitle(),
@@ -73,7 +77,7 @@ class PostServiceImpl implements PostService {
                 null,
                 tags
         );
-        return PostDTO.fromNewPost(postRepository.save(post),objectMapper.writeValueAsString(createPostRequest.getTags()));
+        return PostDTO.fromNewPost(postRepository.save(post), objectMapper.writeValueAsString(createPostRequest.getTags()));
     }
 
     @Override
@@ -84,7 +88,7 @@ class PostServiceImpl implements PostService {
             answer = new Post(updatePostRequest.getAnswerId(), null, null, null, null, null, null, null, null, null, null, null);
         }
         LocalDateTime now = LocalDateTime.now();
-        Set<Tag> tags = updatePostRequest.getTags().stream().map(tag -> new Tag(tag.id(), null, null,null)).collect(Collectors.toSet());
+        Set<Tag> tags = updatePostRequest.getTags().stream().map(tag -> new Tag(tag.id(), null, null, null)).collect(Collectors.toSet());
         Post post = postRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
         if (!post.getAuthor().getId().equals(author.getId())) {
             return;

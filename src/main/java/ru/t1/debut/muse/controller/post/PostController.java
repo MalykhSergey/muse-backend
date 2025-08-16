@@ -9,10 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
-import ru.t1.debut.muse.dto.CreatePostRequest;
-import ru.t1.debut.muse.dto.PostDTO;
-import ru.t1.debut.muse.dto.UpdatePostRequest;
-import ru.t1.debut.muse.dto.UserDTO;
+import ru.t1.debut.muse.dto.*;
 import ru.t1.debut.muse.service.PostService;
 
 import java.util.Optional;
@@ -74,6 +71,13 @@ public class PostController {
     public void updatePost(@PathVariable Long id, @Valid @RequestBody UpdatePostRequest updatePostRequest, @AuthenticationPrincipal Jwt user) {
         UserDTO author = new UserDTO(user);
         postService.updatePost(updatePostRequest, id, author);
+    }
+
+    @PatchMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void setAnswer(@PathVariable Long id, @Valid @RequestBody SetAnswerRequest setAnswerRequest, @AuthenticationPrincipal Jwt user) {
+        UserDTO author = new UserDTO(user);
+        postService.setAnswer(setAnswerRequest, id, author);
     }
 
     @DeleteMapping("/{id}")
