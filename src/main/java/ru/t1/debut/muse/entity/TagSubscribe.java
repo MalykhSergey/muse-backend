@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 public class TagSubscribe {
     @EmbeddedId
-    private TagSubscribeId postSubscribeId;
+    private TagSubscribeId tagSubscribeId;
 
     @ManyToOne
     @MapsId("tagId")
@@ -21,6 +21,9 @@ public class TagSubscribe {
     @MapsId("userId")
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Column
+    private boolean isNotification;
 
 }
 
