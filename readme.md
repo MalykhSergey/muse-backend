@@ -13,7 +13,7 @@
     docker compose up -d muse
 ```
 
-UI для API (с документацией в будущем): http://127.0.0.1/swagger-ui/index.html
+UI для API (с документацией в будущем): http://127.0.0.1/api/swagger-ui/index.html
 
 Запрос для получения токенов:
 ```shell
