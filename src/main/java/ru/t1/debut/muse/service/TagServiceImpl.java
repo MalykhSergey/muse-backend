@@ -26,4 +26,9 @@ public class TagServiceImpl implements TagService {
     public Page<TagDTO> getTags(Pageable pageable) {
         return tagRepository.findAll(pageable).map(TagDTO::fromTag);
     }
+
+    @Override
+    public Page<TagDTO> getTagsByPrefix(String tagPrefix, Pageable pageable) {
+        return tagRepository.findAllByNameStartsWithIgnoreCase(tagPrefix, pageable).map(TagDTO::fromTag);
+    }
 }
