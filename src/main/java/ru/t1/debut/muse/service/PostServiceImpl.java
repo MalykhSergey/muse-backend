@@ -19,7 +19,6 @@ import ru.t1.debut.muse.repository.PostSearchProjection;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -37,14 +36,14 @@ class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Page<PostDTO> getPosts(Long parentId, Long tagId, UserDTO userDTO, Optional<String> query, int page, int size, SortBy sortBy, SortDir sortDir) {
+    public Page<PostDTO> getPosts(Long parentId, Long tagId, UserDTO userDTO, String query, int page, int size, SortBy sortBy, SortDir sortDir) {
         User authUser = userService.getUser(userDTO);
         long offset = (long) page * size;
         List<PostSearchProjection> result;
         if (tagId != null) {
             result = postRepository.getAllByTagId(authUser.getId(), tagId, size, offset, sortBy.name(), sortDir.name());
-        } else if (query.isPresent()) {
-            result = postRepository.searchPosts(query.get(), authUser.getId(), size, offset, sortBy.name(), sortDir.name());
+        } else if (query != null) {
+            result = postRepository.searchPosts(query, authUser.getId(), size, offset, sortBy.name(), sortDir.name());
         } else {
             result = postRepository.getAllByParentId(authUser.getId(), parentId, size, offset, sortBy.name(), sortDir.name());
         }
