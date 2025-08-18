@@ -68,7 +68,7 @@ public final class PostDTO {
                 post.getUpdated(),
                 post.getScore(),
                 post.getAnswerCount(),
-                post.getUserVote() == null ? null : VoteType.valueOf(post.getUserVote()),
+                post.getVoteType() == null ? null : VoteType.valueOf(post.getVoteType()),
                 post.getTags()
         );
     }
