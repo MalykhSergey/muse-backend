@@ -78,7 +78,17 @@ class PostServiceImpl implements PostService {
         Post post = new Post(null, createPostRequest.getTitle(), createPostRequest.getBody(), createPostRequest.getPostType(), author, parent, null, now, now, null, null, tags);
         Post save = postRepository.save(post);
         sendNotifications(parent, tags);
+        createSubscribeForPost(post, author);
         return PostDTO.fromNewPost(save, objectMapper.writeValueAsString(createPostRequest.getTags()));
+    }
+
+    private void createSubscribeForPost(Post post, User author) {
+        PostSubscribe postSubscribe = new PostSubscribe();
+        postSubscribe.setPost(post);
+        postSubscribe.setUser(author);
+        postSubscribe.setNotification(true);
+        postSubscribe.setPostSubscribeId(new PostSubscribeId(post.getId(), author.getId()));
+        postSubscribeRepository.save(postSubscribe);
     }
 
     private void sendNotifications(Post post, Set<Tag> tags) {
