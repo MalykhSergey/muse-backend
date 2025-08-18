@@ -10,7 +10,13 @@ import org.springframework.stereotype.Service;
 import ru.t1.debut.muse.controller.post.SortBy;
 import ru.t1.debut.muse.controller.post.SortDir;
 import ru.t1.debut.muse.dto.*;
-import ru.t1.debut.muse.entity.*;
+import ru.t1.debut.muse.entity.Post;
+import ru.t1.debut.muse.entity.Tag;
+import ru.t1.debut.muse.entity.User;
+import ru.t1.debut.muse.entity.event.CreateAnswerEvent;
+import ru.t1.debut.muse.entity.event.CreatePostForTag;
+import ru.t1.debut.muse.entity.event.EventMessage;
+import ru.t1.debut.muse.entity.event.EventType;
 import ru.t1.debut.muse.exception.ResourceNotFoundException;
 import ru.t1.debut.muse.repository.PostRepository;
 import ru.t1.debut.muse.repository.PostSearchProjection;
@@ -75,25 +81,27 @@ class PostServiceImpl implements PostService {
         Set<Tag> tags = createPostRequest.getTags().stream().map(tag -> new Tag(tag.id(), null, null, null)).collect(Collectors.toSet());
         Post post = new Post(null, createPostRequest.getTitle(), createPostRequest.getBody(), createPostRequest.getPostType(), author, parent, null, now, now, null, null, tags);
         Post save = postRepository.save(post);
-        sendNotifications(parent, tags);
+        sendNotifications(parent, post, tags);
         postSubscribeService.create(post, author);
         return PostDTO.fromNewPost(save, objectMapper.writeValueAsString(createPostRequest.getTags()));
     }
 
-    private void sendNotifications(Post post, Set<Tag> tags) {
-        if (post != null) {
-            List<UUID> parentPostSubscribers = postSubscribeService.getSubscribersUUIDForPost(post.getId());
-            parentPostSubscribers.remove(post.getAuthor().getInternalId());
-            EventMessage eventMessage = new EventMessage(EventType.NEW_ANSWER_FOR_POST, parentPostSubscribers);
-            EventMessage eventMessageForAuthor = new EventMessage(EventType.NEW_ANSWER_FOR_YOUR_POST, List.of(post.getAuthor().getInternalId()));
+    private void sendNotifications(Post parent, Post answer, Set<Tag> tags) {
+        if (parent != null) {
+            Set<UUID> parentPostSubscribers = postSubscribeService.getSubscribersUUIDForPost(parent.getId());
+            if (parent.getAuthor() != null && parent.getAuthor().getInternalId() != null) {
+                parentPostSubscribers.remove(parent.getAuthor().getInternalId());
+                EventMessage eventMessageForAuthor = new CreateAnswerEvent(EventType.NEW_ANSWER_FOR_YOUR_POST, Set.of(parent.getAuthor().getInternalId()), parent.getId(), answer.getId());
+                notificationService.sendNotification(eventMessageForAuthor);
+            }
+            EventMessage eventMessage = new CreateAnswerEvent(EventType.NEW_ANSWER_FOR_POST, parentPostSubscribers, parent.getId(), answer.getId());
             notificationService.sendNotification(eventMessage);
-            notificationService.sendNotification(eventMessageForAuthor);
         }
         if (!tags.isEmpty()) {
+            // Надо будет переписать на один запрос
             for (Tag tag : tags) {
-                // Надо будет переписать на один запрос
-                List<UUID> tagSubscribers = tagSubscribeService.getSubscribersUUIDForTag(tag.getId());
-                EventMessage eventMessage = new EventMessage(EventType.NEW_POST_FOR_TAG, tagSubscribers);
+                Set<UUID> tagSubscribers = tagSubscribeService.getSubscribersUUIDForTag(tag.getId());
+                EventMessage eventMessage = new CreatePostForTag(tagSubscribers, answer.getId(), tag.getName());
                 notificationService.sendNotification(eventMessage);
             }
         }

@@ -9,7 +9,7 @@ import ru.t1.debut.muse.dto.UserDTO;
 import ru.t1.debut.muse.entity.Post;
 import ru.t1.debut.muse.entity.User;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public interface PostSubscribeService {
@@ -19,7 +19,7 @@ public interface PostSubscribeService {
 
     void create(Post post, User author);
 
-    List<UUID> getSubscribersUUIDForPost(long postId);
+    Set<UUID> getSubscribersUUIDForPost(long postId);
 
     void update(long postId, UpdateSubscribeRequest updateSubscribeRequest, UserDTO authUserDTO);
 

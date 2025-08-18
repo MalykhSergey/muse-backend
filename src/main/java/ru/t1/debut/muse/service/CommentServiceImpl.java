@@ -8,13 +8,18 @@ import ru.t1.debut.muse.dto.CommentDTO;
 import ru.t1.debut.muse.dto.CreateCommentRequest;
 import ru.t1.debut.muse.dto.UpdateCommentRequest;
 import ru.t1.debut.muse.dto.UserDTO;
-import ru.t1.debut.muse.entity.*;
+import ru.t1.debut.muse.entity.Comment;
+import ru.t1.debut.muse.entity.Post;
+import ru.t1.debut.muse.entity.User;
+import ru.t1.debut.muse.entity.event.CreateCommentEvent;
+import ru.t1.debut.muse.entity.event.EventMessage;
+import ru.t1.debut.muse.entity.event.EventType;
 import ru.t1.debut.muse.exception.ResourceNotFoundException;
 import ru.t1.debut.muse.repository.CommentRepository;
 import ru.t1.debut.muse.repository.PostRepository;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -49,15 +54,15 @@ public class CommentServiceImpl implements CommentService {
         Post post = postRepository.findById(createCommentRequest.getPostId()).orElseThrow(ResourceNotFoundException::new);
         LocalDateTime now = LocalDateTime.now();
         Comment comment = commentRepository.save(new Comment(null, createCommentRequest.getBody(), author, post, now, now));
-        sendNotifications(post);
+        sendNotifications(post, comment);
         return new CommentDTO(comment.getId(), comment.getBody(), new UserDTO(author), createCommentRequest.getPostId(), now, now);
     }
 
-    private void sendNotifications(Post post) {
-        List<UUID> parentPostSubscribers = postSubscribeService.getSubscribersUUIDForPost(post.getId());
+    private void sendNotifications(Post post, Comment comment) {
+        Set<UUID> parentPostSubscribers = postSubscribeService.getSubscribersUUIDForPost(post.getId());
         parentPostSubscribers.remove(post.getAuthor().getInternalId());
-        EventMessage eventMessage = new EventMessage(EventType.NEW_COMMENT_FOR_POST, parentPostSubscribers);
-        EventMessage eventMessageForPostAuthor = new EventMessage(EventType.NEW_COMMENT_FOR_YOUR_POST, List.of(post.getAuthor().getInternalId()));
+        EventMessage eventMessage = new CreateCommentEvent(EventType.NEW_COMMENT_FOR_POST, parentPostSubscribers, post.getId(), comment.getId());
+        EventMessage eventMessageForPostAuthor = new CreateCommentEvent(EventType.NEW_COMMENT_FOR_YOUR_POST, Set.of(post.getAuthor().getInternalId()), post.getId(), comment.getId());
         notificationService.sendNotification(eventMessage);
         notificationService.sendNotification(eventMessageForPostAuthor);
     }

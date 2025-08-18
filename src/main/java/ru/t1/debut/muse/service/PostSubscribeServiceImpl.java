@@ -14,7 +14,7 @@ import ru.t1.debut.muse.entity.PostSubscribeId;
 import ru.t1.debut.muse.entity.User;
 import ru.t1.debut.muse.repository.PostSubscribeRepository;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -58,7 +58,7 @@ public class PostSubscribeServiceImpl implements PostSubscribeService {
     }
 
     @Override
-    public List<UUID> getSubscribersUUIDForPost(long postId) {
+    public Set<UUID> getSubscribersUUIDForPost(long postId) {
         return postSubscribeRepository.findNotificationEnabledUserInternalIdsByPostId(postId);
     }
 

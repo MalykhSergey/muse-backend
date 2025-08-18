@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import ru.t1.debut.muse.entity.PostSubscribe;
 import ru.t1.debut.muse.entity.PostSubscribeId;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Repository
@@ -20,5 +20,5 @@ public interface PostSubscribeRepository extends JpaRepository<PostSubscribe, Po
     void deleteByPostIdAndUserId(long postId, long userId);
 
     @Query("SELECT ps.user.internalId FROM PostSubscribe ps WHERE ps.postSubscribeId.postId = :postId AND ps.isNotification = true")
-    List<UUID> findNotificationEnabledUserInternalIdsByPostId(Long postId);
+    Set<UUID> findNotificationEnabledUserInternalIdsByPostId(Long postId);
 }

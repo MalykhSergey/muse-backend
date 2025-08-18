@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import ru.t1.debut.muse.entity.TagSubscribe;
 import ru.t1.debut.muse.entity.TagSubscribeId;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Repository
@@ -20,5 +20,5 @@ public interface TagSubscribeRepository extends JpaRepository<TagSubscribe, TagS
     void deleteByTagIdAndUserId(long tagId, Long id);
 
     @Query("SELECT ts.user.internalId FROM TagSubscribe ts WHERE ts.tagSubscribeId.tagId = :tagId AND ts.isNotification = true")
-    List<UUID> findNotificationEnabledUserInternalIdsByTagId(Long tagId);
+    Set<UUID> findNotificationEnabledUserInternalIdsByTagId(Long tagId);
 }

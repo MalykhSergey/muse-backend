@@ -14,7 +14,7 @@ import ru.t1.debut.muse.entity.TagSubscribeId;
 import ru.t1.debut.muse.entity.User;
 import ru.t1.debut.muse.repository.TagSubscribeRepository;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -35,7 +35,7 @@ public class TagSubscribeServiceImpl implements TagSubscribeService {
     }
 
     @Override
-    public List<UUID> getSubscribersUUIDForTag(long tagId) {
+    public Set<UUID> getSubscribersUUIDForTag(long tagId) {
         return tagSubscribeRepository.findNotificationEnabledUserInternalIdsByTagId(tagId);
     }
 

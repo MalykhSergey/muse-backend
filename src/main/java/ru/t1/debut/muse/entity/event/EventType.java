@@ -1,4 +1,4 @@
-package ru.t1.debut.muse.entity;
+package ru.t1.debut.muse.entity.event;
 
 public enum EventType {
     NEW_ANSWER_FOR_POST,
