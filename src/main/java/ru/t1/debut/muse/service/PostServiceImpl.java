@@ -87,9 +87,10 @@ class PostServiceImpl implements PostService {
     }
 
     private void sendNotifications(Post parent, Post answer, Set<Tag> tags) {
+        boolean author_UUID_exists = parent != null && parent.getAuthor() != null && parent.getAuthor().getInternalId() != null;
         if (parent != null) {
             Set<UUID> parentPostSubscribers = postSubscribeService.getSubscribersUUIDForPost(parent.getId());
-            if (parent.getAuthor() != null && parent.getAuthor().getInternalId() != null) {
+            if (author_UUID_exists) {
                 parentPostSubscribers.remove(parent.getAuthor().getInternalId());
                 EventMessage eventMessageForAuthor = new CreateAnswerEvent(EventType.NEW_ANSWER_FOR_YOUR_POST, Set.of(parent.getAuthor().getInternalId()), parent.getId(), answer.getId());
                 notificationService.sendNotification(eventMessageForAuthor);
@@ -101,6 +102,8 @@ class PostServiceImpl implements PostService {
             // Надо будет переписать на один запрос
             for (Tag tag : tags) {
                 Set<UUID> tagSubscribers = tagSubscribeService.getSubscribersUUIDForTag(tag.getId());
+                if (author_UUID_exists)
+                    tagSubscribers.remove(parent.getAuthor().getInternalId());
                 EventMessage eventMessage = new CreatePostForTag(tagSubscribers, answer.getId(), tag.getName());
                 notificationService.sendNotification(eventMessage);
             }
