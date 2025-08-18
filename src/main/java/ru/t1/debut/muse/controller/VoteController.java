@@ -23,14 +23,14 @@ public class VoteController {
 
     @Operation(summary = "Голосовать за пост", description = "Создает голос за пост от имени аутентифицированного пользователя")
     @PostMapping
-    public void createVote(@RequestParam("id") Long postId, @RequestBody VoteType voteType, @AuthenticationPrincipal Jwt user) {
+    public void createVote(@PathVariable("id") Long postId, @RequestBody VoteType voteType, @AuthenticationPrincipal Jwt user) {
         UserDTO author = new UserDTO(user);
         voteService.createVote(author, voteType, postId);
     }
 
     @Operation(summary = "Получить голос за пост", description = "Загружает голос авторизованного пользователя на указанный пост")
     @GetMapping
-    public ResponseEntity<VoteDTO> getVote(@RequestParam("id") Long postId, @AuthenticationPrincipal Jwt user) {
+    public ResponseEntity<VoteDTO> getVote(@PathVariable("id") Long postId, @AuthenticationPrincipal Jwt user) {
         UserDTO author = new UserDTO(user);
         return ResponseEntity.ok(VoteDTO.fromVote(voteService.getUserVoteForPost(postId, author)));
     }
