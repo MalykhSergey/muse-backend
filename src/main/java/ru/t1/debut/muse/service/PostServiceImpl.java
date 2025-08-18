@@ -71,16 +71,24 @@ class PostServiceImpl implements PostService {
         User author = userService.getUser(authorDTO);
         Post parent = null;
         if (createPostRequest.getParentId() != null) {
-            parent = new Post(createPostRequest.getParentId(), null, null, null, null, null, null, null, null, null, null, null);
+            parent = postRepository.findById(createPostRequest.getParentId()).orElseThrow(ResourceNotFoundException::new);
         }
         LocalDateTime now = LocalDateTime.now();
         Set<Tag> tags = createPostRequest.getTags().stream().map(tag -> new Tag(tag.id(), null, null, null)).collect(Collectors.toSet());
         Post post = new Post(null, createPostRequest.getTitle(), createPostRequest.getBody(), createPostRequest.getPostType(), author, parent, null, now, now, null, null, tags);
         Post save = postRepository.save(post);
-        if (parent != null) {
-            List<UUID> parentPostSubscribers = postSubscribeRepository.findNotificationEnabledUserInternalIdsByPostId(parent.getId());
+        sendNotifications(parent, tags);
+        return PostDTO.fromNewPost(save, objectMapper.writeValueAsString(createPostRequest.getTags()));
+    }
+
+    private void sendNotifications(Post post, Set<Tag> tags) {
+        if (post != null) {
+            List<UUID> parentPostSubscribers = postSubscribeRepository.findNotificationEnabledUserInternalIdsByPostId(post.getId());
+            parentPostSubscribers.remove(post.getAuthor().getInternalId());
             EventMessage eventMessage = new EventMessage(EventType.NEW_ANSWER_FOR_POST, parentPostSubscribers);
+            EventMessage eventMessageForAuthor = new EventMessage(EventType.NEW_ANSWER_FOR_YOUR_POST, List.of(post.getAuthor().getInternalId()));
             notificationService.sendNotification(eventMessage);
+            notificationService.sendNotification(eventMessageForAuthor);
         }
         if (!tags.isEmpty()) {
             for (Tag tag : tags) {
@@ -90,7 +98,6 @@ class PostServiceImpl implements PostService {
                 notificationService.sendNotification(eventMessage);
             }
         }
-        return PostDTO.fromNewPost(save, objectMapper.writeValueAsString(createPostRequest.getTags()));
     }
 
     @Override
