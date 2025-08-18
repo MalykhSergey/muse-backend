@@ -14,7 +14,7 @@ public class CreatePostRequest {
     @Size(min = 5, max = 150)
     private String title;
     @NotNull
-    @Size(min = 5, max = 150)
+    @Size(min = 20, max = 5000)
     private String body;
     @NotNull
     private PostType postType;
