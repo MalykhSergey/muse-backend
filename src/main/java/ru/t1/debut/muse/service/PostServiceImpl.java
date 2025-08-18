@@ -13,6 +13,10 @@ import ru.t1.debut.muse.dto.*;
 import ru.t1.debut.muse.entity.Post;
 import ru.t1.debut.muse.entity.Tag;
 import ru.t1.debut.muse.entity.User;
+import ru.t1.debut.muse.entity.event.CreateAnswerEvent;
+import ru.t1.debut.muse.entity.event.CreatePostForTag;
+import ru.t1.debut.muse.entity.event.EventMessage;
+import ru.t1.debut.muse.entity.event.EventType;
 import ru.t1.debut.muse.exception.ResourceNotFoundException;
 import ru.t1.debut.muse.repository.PostRepository;
 import ru.t1.debut.muse.repository.PostSearchProjection;
@@ -20,17 +24,24 @@ import ru.t1.debut.muse.repository.PostSearchProjection;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
+    private final PostSubscribeService postSubscribeService;
+    private final TagSubscribeService tagSubscribeService;
+    private final NotificationService notificationService;
     private final UserService userService;
     private final ObjectMapper objectMapper;
 
     @Autowired
-    PostServiceImpl(PostRepository postRepository, UserService userService, ObjectMapper objectMapper) {
+    PostServiceImpl(PostRepository postRepository, PostSubscribeService postSubscribeService, TagSubscribeService tagSubscribeService, NotificationService notificationService, UserService userService, ObjectMapper objectMapper) {
         this.postRepository = postRepository;
+        this.postSubscribeService = postSubscribeService;
+        this.tagSubscribeService = tagSubscribeService;
+        this.notificationService = notificationService;
         this.userService = userService;
         this.objectMapper = objectMapper;
     }
@@ -64,25 +75,36 @@ class PostServiceImpl implements PostService {
         User author = userService.getUser(authorDTO);
         Post parent = null;
         if (createPostRequest.getParentId() != null) {
-            parent = new Post(createPostRequest.getParentId(), null, null, null, null, null, null, null, null, null, null, null);
+            parent = postRepository.findById(createPostRequest.getParentId()).orElseThrow(ResourceNotFoundException::new);
         }
         LocalDateTime now = LocalDateTime.now();
         Set<Tag> tags = createPostRequest.getTags().stream().map(tag -> new Tag(tag.id(), null, null, null)).collect(Collectors.toSet());
-        Post post = new Post(
-                null,
-                createPostRequest.getTitle(),
-                createPostRequest.getBody(),
-                createPostRequest.getPostType(),
-                author,
-                parent,
-                null,
-                now,
-                now,
-                null,
-                null,
-                tags
-        );
-        return PostDTO.fromNewPost(postRepository.save(post), objectMapper.writeValueAsString(createPostRequest.getTags()));
+        Post post = new Post(null, createPostRequest.getTitle(), createPostRequest.getBody(), createPostRequest.getPostType(), author, parent, null, now, now, null, null, tags);
+        Post save = postRepository.save(post);
+        sendNotifications(parent, post, tags);
+        postSubscribeService.create(post, author);
+        return PostDTO.fromNewPost(save, objectMapper.writeValueAsString(createPostRequest.getTags()));
+    }
+
+    private void sendNotifications(Post parent, Post answer, Set<Tag> tags) {
+        if (parent != null) {
+            Set<UUID> parentPostSubscribers = postSubscribeService.getSubscribersUUIDForPost(parent.getId());
+            if (parent.getAuthor() != null && parent.getAuthor().getInternalId() != null) {
+                parentPostSubscribers.remove(parent.getAuthor().getInternalId());
+                EventMessage eventMessageForAuthor = new CreateAnswerEvent(EventType.NEW_ANSWER_FOR_YOUR_POST, Set.of(parent.getAuthor().getInternalId()), parent.getId(), answer.getId());
+                notificationService.sendNotification(eventMessageForAuthor);
+            }
+            EventMessage eventMessage = new CreateAnswerEvent(EventType.NEW_ANSWER_FOR_POST, parentPostSubscribers, parent.getId(), answer.getId());
+            notificationService.sendNotification(eventMessage);
+        }
+        if (!tags.isEmpty()) {
+            // Надо будет переписать на один запрос
+            for (Tag tag : tags) {
+                Set<UUID> tagSubscribers = tagSubscribeService.getSubscribersUUIDForTag(tag.getId());
+                EventMessage eventMessage = new CreatePostForTag(tagSubscribers, answer.getId(), tag.getName());
+                notificationService.sendNotification(eventMessage);
+            }
+        }
     }
 
     @Override
@@ -96,6 +118,7 @@ class PostServiceImpl implements PostService {
         Set<Tag> tags = updatePostRequest.getTags().stream().map(tag -> new Tag(tag.id(), null, null, null)).collect(Collectors.toSet());
         Post post = postRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
         if (!post.getAuthor().getId().equals(author.getId())) {
+            // Попытка отредактировать чужой пост
             return;
         }
         post.setTitle(updatePostRequest.getTitle());

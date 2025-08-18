@@ -14,6 +14,9 @@ import ru.t1.debut.muse.entity.TagSubscribeId;
 import ru.t1.debut.muse.entity.User;
 import ru.t1.debut.muse.repository.TagSubscribeRepository;
 
+import java.util.Set;
+import java.util.UUID;
+
 @Service
 public class TagSubscribeServiceImpl implements TagSubscribeService {
     private final TagSubscribeRepository tagSubscribeRepository;
@@ -29,6 +32,11 @@ public class TagSubscribeServiceImpl implements TagSubscribeService {
     public Page<TagSubscribeDTO> getAll(Pageable pageable, UserDTO authUserDTO) {
         User authUser = userService.getUser(authUserDTO);
         return tagSubscribeRepository.findAllByUserId(authUser.getId(), pageable).map(TagSubscribeDTO::new);
+    }
+
+    @Override
+    public Set<UUID> getSubscribersUUIDForTag(long tagId) {
+        return tagSubscribeRepository.findNotificationEnabledUserInternalIdsByTagId(tagId);
     }
 
     @Override

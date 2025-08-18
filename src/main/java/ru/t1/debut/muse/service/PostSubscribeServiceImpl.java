@@ -14,6 +14,9 @@ import ru.t1.debut.muse.entity.PostSubscribeId;
 import ru.t1.debut.muse.entity.User;
 import ru.t1.debut.muse.repository.PostSubscribeRepository;
 
+import java.util.Set;
+import java.util.UUID;
+
 @Service
 public class PostSubscribeServiceImpl implements PostSubscribeService {
     private final PostSubscribeRepository postSubscribeRepository;
@@ -42,6 +45,21 @@ public class PostSubscribeServiceImpl implements PostSubscribeService {
         postSubscribe.setPost(post);
         postSubscribe.setNotification(createSubscribeRequest.getIsNotification());
         return new PostSubscribeDTO(postSubscribeRepository.save(postSubscribe));
+    }
+
+    @Override
+    public void create(Post post, User author) {
+        PostSubscribe postSubscribe = new PostSubscribe();
+        postSubscribe.setPost(post);
+        postSubscribe.setUser(author);
+        postSubscribe.setNotification(true);
+        postSubscribe.setPostSubscribeId(new PostSubscribeId(post.getId(), author.getId()));
+        postSubscribeRepository.save(postSubscribe);
+    }
+
+    @Override
+    public Set<UUID> getSubscribersUUIDForPost(long postId) {
+        return postSubscribeRepository.findNotificationEnabledUserInternalIdsByPostId(postId);
     }
 
     @Override
