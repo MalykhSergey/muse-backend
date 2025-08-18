@@ -37,11 +37,17 @@ class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Page<PostDTO> getPosts(Long parentId, UserDTO userDTO, Optional<String> query, int page, int size, SortBy sortBy, SortDir sortDir) {
+    public Page<PostDTO> getPosts(Long parentId, Long tagId, UserDTO userDTO, Optional<String> query, int page, int size, SortBy sortBy, SortDir sortDir) {
         User authUser = userService.getUser(userDTO);
         long offset = (long) page * size;
-        List<PostSearchProjection> result = query.map(s -> postRepository.searchPosts(s, authUser.getId(), size, offset, sortBy.name(), sortDir.name()))
-                .orElseGet(() -> postRepository.getAllByParentId(authUser.getId(), parentId, size, offset, sortBy.name(), sortDir.name()));
+        List<PostSearchProjection> result;
+        if (tagId != null) {
+            result = postRepository.getAllByTagId(authUser.getId(), tagId, size, offset, sortBy.name(), sortDir.name());
+        } else if (query.isPresent()) {
+            result = postRepository.searchPosts(query.get(), authUser.getId(), size, offset, sortBy.name(), sortDir.name());
+        } else {
+            result = postRepository.getAllByParentId(authUser.getId(), parentId, size, offset, sortBy.name(), sortDir.name());
+        }
         long total = result.isEmpty() ? 0 : result.getFirst().getTotalCount();
         return new PageImpl<>(result.stream().map(PostDTO::fromPostSearchResult).toList(), PageRequest.of(page, size), total);
     }

@@ -33,13 +33,14 @@ public class PostController {
     public ResponseEntity<Page<PostDTO>> getPosts(
             @RequestParam(required = false) Optional<String> query,
             @RequestParam(required = false) Long parentId,
+            @RequestParam(required = false) Long tagId,
             @RequestParam int page,
             @RequestParam int size,
             @RequestParam(required = false) Optional<SortBy> sortBy,
             @RequestParam(required = false) Optional<SortDir> sortDir,
             @AuthenticationPrincipal Jwt user) {
         UserDTO userDTO = new UserDTO(user);
-        return ResponseEntity.ok(postService.getPosts(parentId, userDTO, query, page, size, sortBy.orElse(SortBy.CREATED), sortDir.orElse(SortDir.DESC)));
+        return ResponseEntity.ok(postService.getPosts(parentId, tagId, userDTO, query, page, size, sortBy.orElse(SortBy.CREATED), sortDir.orElse(SortDir.DESC)));
     }
 
     @Operation(

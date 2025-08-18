@@ -1,8 +1,6 @@
 package ru.t1.debut.muse.service;
 
-import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import ru.t1.debut.muse.controller.post.SortBy;
 import ru.t1.debut.muse.controller.post.SortDir;
 import ru.t1.debut.muse.dto.*;
@@ -18,7 +16,7 @@ public interface PostService {
 
     PostDTO getPost(Long id, UserDTO userDTO);
 
-    Page<PostDTO>  getPosts(Long parentId, UserDTO userDTO, Optional<String> query, int page, int size, SortBy sortBy, SortDir sortDir);
+    Page<PostDTO> getPosts(Long parentId, Long tagId, UserDTO userDTO, Optional<String> query, int page, int size, SortBy sortBy, SortDir sortDir);
 
     void setAnswer(SetAnswerRequest setAnswerRequest, Long id, UserDTO author);
 }
