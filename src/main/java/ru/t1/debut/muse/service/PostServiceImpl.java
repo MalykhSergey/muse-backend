@@ -10,28 +10,35 @@ import org.springframework.stereotype.Service;
 import ru.t1.debut.muse.controller.post.SortBy;
 import ru.t1.debut.muse.controller.post.SortDir;
 import ru.t1.debut.muse.dto.*;
-import ru.t1.debut.muse.entity.Post;
-import ru.t1.debut.muse.entity.Tag;
-import ru.t1.debut.muse.entity.User;
+import ru.t1.debut.muse.entity.*;
 import ru.t1.debut.muse.exception.ResourceNotFoundException;
 import ru.t1.debut.muse.repository.PostRepository;
 import ru.t1.debut.muse.repository.PostSearchProjection;
+import ru.t1.debut.muse.repository.PostSubscribeRepository;
+import ru.t1.debut.muse.repository.TagSubscribeRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
+    private final PostSubscribeRepository postSubscribeRepository;
+    private final TagSubscribeRepository tagSubscribeRepository;
+    private final NotificationService notificationService;
     private final UserService userService;
     private final ObjectMapper objectMapper;
 
     @Autowired
-    PostServiceImpl(PostRepository postRepository, UserService userService, ObjectMapper objectMapper) {
+    PostServiceImpl(PostRepository postRepository, PostSubscribeRepository postSubscribeRepository, TagSubscribeRepository tagSubscribeRepository, NotificationService notificationService, UserService userService, ObjectMapper objectMapper) {
         this.postRepository = postRepository;
+        this.postSubscribeRepository = postSubscribeRepository;
+        this.tagSubscribeRepository = tagSubscribeRepository;
+        this.notificationService = notificationService;
         this.userService = userService;
         this.objectMapper = objectMapper;
     }
@@ -40,8 +47,7 @@ class PostServiceImpl implements PostService {
     public Page<PostDTO> getPosts(Long parentId, UserDTO userDTO, Optional<String> query, int page, int size, SortBy sortBy, SortDir sortDir) {
         User authUser = userService.getUser(userDTO);
         long offset = (long) page * size;
-        List<PostSearchProjection> result = query.map(s -> postRepository.searchPosts(s, authUser.getId(), size, offset, sortBy.name(), sortDir.name()))
-                .orElseGet(() -> postRepository.getAllByParentId(authUser.getId(), parentId, size, offset, sortBy.name(), sortDir.name()));
+        List<PostSearchProjection> result = query.map(s -> postRepository.searchPosts(s, authUser.getId(), size, offset, sortBy.name(), sortDir.name())).orElseGet(() -> postRepository.getAllByParentId(authUser.getId(), parentId, size, offset, sortBy.name(), sortDir.name()));
         long total = result.isEmpty() ? 0 : result.getFirst().getTotalCount();
         return new PageImpl<>(result.stream().map(PostDTO::fromPostSearchResult).toList(), PageRequest.of(page, size), total);
     }
@@ -63,21 +69,22 @@ class PostServiceImpl implements PostService {
         }
         LocalDateTime now = LocalDateTime.now();
         Set<Tag> tags = createPostRequest.getTags().stream().map(tag -> new Tag(tag.id(), null, null, null)).collect(Collectors.toSet());
-        Post post = new Post(
-                null,
-                createPostRequest.getTitle(),
-                createPostRequest.getBody(),
-                createPostRequest.getPostType(),
-                author,
-                parent,
-                null,
-                now,
-                now,
-                null,
-                null,
-                tags
-        );
-        return PostDTO.fromNewPost(postRepository.save(post), objectMapper.writeValueAsString(createPostRequest.getTags()));
+        Post post = new Post(null, createPostRequest.getTitle(), createPostRequest.getBody(), createPostRequest.getPostType(), author, parent, null, now, now, null, null, tags);
+        Post save = postRepository.save(post);
+        if (parent != null) {
+            List<UUID> parentPostSubscribers = postSubscribeRepository.findNotificationEnabledUserInternalIdsByPostId(parent.getId());
+            EventMessage eventMessage = new EventMessage(EventType.NEW_ANSWER_FOR_POST, parentPostSubscribers);
+            notificationService.sendNotification(eventMessage);
+        }
+        if (!tags.isEmpty()) {
+            for (Tag tag : tags) {
+                // Надо будет переписать на один запрос
+                List<UUID> tagSubscribers = tagSubscribeRepository.findNotificationEnabledUserInternalIdsByTagId(tag.getId());
+                EventMessage eventMessage = new EventMessage(EventType.NEW_POST_FOR_TAG, tagSubscribers);
+                notificationService.sendNotification(eventMessage);
+            }
+        }
+        return PostDTO.fromNewPost(save, objectMapper.writeValueAsString(createPostRequest.getTags()));
     }
 
     @Override
@@ -91,6 +98,7 @@ class PostServiceImpl implements PostService {
         Set<Tag> tags = updatePostRequest.getTags().stream().map(tag -> new Tag(tag.id(), null, null, null)).collect(Collectors.toSet());
         Post post = postRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
         if (!post.getAuthor().getId().equals(author.getId())) {
+            // Попытка отредактировать чужой пост
             return;
         }
         post.setTitle(updatePostRequest.getTitle());
