@@ -14,8 +14,6 @@ import ru.t1.debut.muse.entity.*;
 import ru.t1.debut.muse.exception.ResourceNotFoundException;
 import ru.t1.debut.muse.repository.PostRepository;
 import ru.t1.debut.muse.repository.PostSearchProjection;
-import ru.t1.debut.muse.repository.PostSubscribeRepository;
-import ru.t1.debut.muse.repository.TagSubscribeRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,17 +24,17 @@ import java.util.stream.Collectors;
 @Service
 class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
-    private final PostSubscribeRepository postSubscribeRepository;
-    private final TagSubscribeRepository tagSubscribeRepository;
+    private final PostSubscribeService postSubscribeService;
+    private final TagSubscribeService tagSubscribeService;
     private final NotificationService notificationService;
     private final UserService userService;
     private final ObjectMapper objectMapper;
 
     @Autowired
-    PostServiceImpl(PostRepository postRepository, PostSubscribeRepository postSubscribeRepository, TagSubscribeRepository tagSubscribeRepository, NotificationService notificationService, UserService userService, ObjectMapper objectMapper) {
+    PostServiceImpl(PostRepository postRepository, PostSubscribeService postSubscribeService, TagSubscribeService tagSubscribeService, NotificationService notificationService, UserService userService, ObjectMapper objectMapper) {
         this.postRepository = postRepository;
-        this.postSubscribeRepository = postSubscribeRepository;
-        this.tagSubscribeRepository = tagSubscribeRepository;
+        this.postSubscribeService = postSubscribeService;
+        this.tagSubscribeService = tagSubscribeService;
         this.notificationService = notificationService;
         this.userService = userService;
         this.objectMapper = objectMapper;
@@ -78,22 +76,13 @@ class PostServiceImpl implements PostService {
         Post post = new Post(null, createPostRequest.getTitle(), createPostRequest.getBody(), createPostRequest.getPostType(), author, parent, null, now, now, null, null, tags);
         Post save = postRepository.save(post);
         sendNotifications(parent, tags);
-        createSubscribeForPost(post, author);
+        postSubscribeService.create(post, author);
         return PostDTO.fromNewPost(save, objectMapper.writeValueAsString(createPostRequest.getTags()));
-    }
-
-    private void createSubscribeForPost(Post post, User author) {
-        PostSubscribe postSubscribe = new PostSubscribe();
-        postSubscribe.setPost(post);
-        postSubscribe.setUser(author);
-        postSubscribe.setNotification(true);
-        postSubscribe.setPostSubscribeId(new PostSubscribeId(post.getId(), author.getId()));
-        postSubscribeRepository.save(postSubscribe);
     }
 
     private void sendNotifications(Post post, Set<Tag> tags) {
         if (post != null) {
-            List<UUID> parentPostSubscribers = postSubscribeRepository.findNotificationEnabledUserInternalIdsByPostId(post.getId());
+            List<UUID> parentPostSubscribers = postSubscribeService.getSubscribersUUIDForPost(post.getId());
             parentPostSubscribers.remove(post.getAuthor().getInternalId());
             EventMessage eventMessage = new EventMessage(EventType.NEW_ANSWER_FOR_POST, parentPostSubscribers);
             EventMessage eventMessageForAuthor = new EventMessage(EventType.NEW_ANSWER_FOR_YOUR_POST, List.of(post.getAuthor().getInternalId()));
@@ -103,7 +92,7 @@ class PostServiceImpl implements PostService {
         if (!tags.isEmpty()) {
             for (Tag tag : tags) {
                 // Надо будет переписать на один запрос
-                List<UUID> tagSubscribers = tagSubscribeRepository.findNotificationEnabledUserInternalIdsByTagId(tag.getId());
+                List<UUID> tagSubscribers = tagSubscribeService.getSubscribersUUIDForTag(tag.getId());
                 EventMessage eventMessage = new EventMessage(EventType.NEW_POST_FOR_TAG, tagSubscribers);
                 notificationService.sendNotification(eventMessage);
             }

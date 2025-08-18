@@ -12,7 +12,6 @@ import ru.t1.debut.muse.entity.*;
 import ru.t1.debut.muse.exception.ResourceNotFoundException;
 import ru.t1.debut.muse.repository.CommentRepository;
 import ru.t1.debut.muse.repository.PostRepository;
-import ru.t1.debut.muse.repository.PostSubscribeRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,18 +23,18 @@ public class CommentServiceImpl implements CommentService {
     private final UserService userService;
     private final NotificationService notificationService;
 
-    private final PostSubscribeRepository postSubscribeRepository;
+    private final PostSubscribeService postSubscribeService;
 
     private final PostRepository postRepository;
 
     @Autowired
     public CommentServiceImpl(CommentRepository commentRepository, UserService userService, NotificationService notificationService,
-                              PostSubscribeRepository postSubscribeRepository,
+                              PostSubscribeService postSubscribeService,
                               PostRepository postRepository) {
         this.commentRepository = commentRepository;
         this.userService = userService;
         this.notificationService = notificationService;
-        this.postSubscribeRepository = postSubscribeRepository;
+        this.postSubscribeService = postSubscribeService;
         this.postRepository = postRepository;
     }
 
@@ -55,7 +54,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     private void sendNotifications(Post post) {
-        List<UUID> parentPostSubscribers = postSubscribeRepository.findNotificationEnabledUserInternalIdsByPostId(post.getId());
+        List<UUID> parentPostSubscribers = postSubscribeService.getSubscribersUUIDForPost(post.getId());
         parentPostSubscribers.remove(post.getAuthor().getInternalId());
         EventMessage eventMessage = new EventMessage(EventType.NEW_COMMENT_FOR_POST, parentPostSubscribers);
         EventMessage eventMessageForPostAuthor = new EventMessage(EventType.NEW_COMMENT_FOR_YOUR_POST, List.of(post.getAuthor().getInternalId()));

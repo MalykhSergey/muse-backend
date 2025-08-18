@@ -7,8 +7,13 @@ import ru.t1.debut.muse.dto.TagSubscribeDTO;
 import ru.t1.debut.muse.dto.UpdateSubscribeRequest;
 import ru.t1.debut.muse.dto.UserDTO;
 
+import java.util.List;
+import java.util.UUID;
+
 public interface TagSubscribeService {
     Page<TagSubscribeDTO> getAll(Pageable pageable, UserDTO authUserDTO);
+
+    List<UUID> getSubscribersUUIDForTag(long tagId);
 
     TagSubscribeDTO create(long tagId, CreateSubscribeRequest createSubscribeRequest, UserDTO authUserDTO);
 
