@@ -10,7 +10,6 @@ import java.util.Set;
 
 @Data
 public class CreatePostRequest {
-    @NotNull
     @Size(min = 5, max = 150)
     private String title;
     @NotNull

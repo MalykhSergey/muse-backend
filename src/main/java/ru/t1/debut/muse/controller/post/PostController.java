@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.t1.debut.muse.dto.*;
 import ru.t1.debut.muse.service.PostService;
 
-import java.util.Optional;
-
 @RestController
 @RequestMapping("/posts")
 public class PostController {
@@ -31,15 +29,22 @@ public class PostController {
     )
     @GetMapping
     public ResponseEntity<Page<PostDTO>> getPosts(
-            @RequestParam(required = false) Optional<String> query,
+            @RequestParam(required = false) String query,
             @RequestParam(required = false) Long parentId,
+            @RequestParam(required = false) Long tagId,
             @RequestParam int page,
             @RequestParam int size,
-            @RequestParam(required = false) Optional<SortBy> sortBy,
-            @RequestParam(required = false) Optional<SortDir> sortDir,
+            @RequestParam(required = false) SortBy sortBy,
+            @RequestParam(required = false) SortDir sortDir,
             @AuthenticationPrincipal Jwt user) {
         UserDTO userDTO = new UserDTO(user);
-        return ResponseEntity.ok(postService.getPosts(parentId, userDTO, query, page, size, sortBy.orElse(SortBy.CREATED), sortDir.orElse(SortDir.DESC)));
+        if (sortBy == null) {
+            sortBy = SortBy.CREATED;
+        }
+        if (sortDir == null) {
+            sortDir = SortDir.DESC;
+        }
+        return ResponseEntity.ok(postService.getPosts(parentId, tagId, userDTO, query, page, size, sortBy, sortDir));
     }
 
     @Operation(

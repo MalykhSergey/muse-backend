@@ -8,4 +8,5 @@ public interface TagService {
     TagDTO getTag(Long id);
 
     Page<TagDTO> getTags(Pageable pageable);
+    Page<TagDTO> getTagsByPrefix(String tagPrefix,Pageable pageable);
 }
