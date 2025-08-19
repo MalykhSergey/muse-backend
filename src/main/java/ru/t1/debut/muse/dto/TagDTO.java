@@ -1,5 +1,6 @@
 package ru.t1.debut.muse.dto;
 
+import ru.t1.debut.muse.entity.Post;
 import ru.t1.debut.muse.entity.Tag;
 
 public record TagDTO(
@@ -8,6 +9,8 @@ public record TagDTO(
         Long postId
 ) {
     public static TagDTO fromTag(Tag tag) {
-        return new TagDTO(tag.getId(),tag.getName(),tag.getPost().getId());
+        Post post = tag.getPost();
+        Long postId = post == null ? null : post.getId();
+        return new TagDTO(tag.getId(), tag.getName(), postId);
     }
 }
