@@ -66,5 +66,15 @@ spec:
                 configMapKeyRef:
                   name: muse-config
                   key: SPRING_PROFILE
+            - name: SPRING_KAFKA_BOOTSTRAP-SERVERS
+              valueFrom:
+                configMapKeyRef:
+                  name: muse-config
+                  key: SPRING_KAFKA_BOOTSTRAP-SERVERS
+            - name: NOTIFICATIONS-TOPIC
+              valueFrom:
+                configMapKeyRef:
+                  name: muse-config
+                  key: NOTIFICATIONS-TOPIC
           resources:
 {{ toYaml .Values.resources | indent 12 }}

@@ -10,6 +10,10 @@ image:
   pullSecrets:
     - name: gitlab-registry-secret-muse-backend
 
+kafka:
+  boostrapServers: kafka.kafka.svc.cluster.local:9092
+  topic: notifications
+
 service:
   type: ClusterIP
   port: 8080
@@ -25,3 +29,19 @@ issuer:
   uri:  http://keycloak.keycloak.svc.cluster.local:8080/realms/users-auth
 
 resources: {}
+
+ingress:
+  enabled: true
+  className: nginx
+  tls:
+    - hosts:
+        - muse.innoca.local
+      secretName: muse-frontend-tls
+  hosts:
+    - host: muse.innoca.local
+      paths:
+        - path: /api
+          pathType: Prefix
+          service:
+            name: ""
+            port: 8080
