@@ -10,3 +10,5 @@ data:
   SPRING_PROFILE: {{ .Values.spring.profile | quote }}
   DB_URL: {{ .Values.postgres.url | quote }}
   ISSUER_URI: {{ .Values.issuer.uri | quote }}
+  SPRING_KAFKA_BOOTSTRAP-SERVERS: {{ .Values.kafka.boostrapServers | quote }}
+  NOTIFICATIONS-TOPIC: {{ .Values.kafka.topic | quote }}
