@@ -27,7 +27,7 @@ public class VoteServiceImpl implements VoteService {
     @Override
     public void createVote(UserDTO authorDTO, VoteType voteType, long postId) {
         Optional<Vote> stored_vote = voteRepository.findByPost_IdAndAuthor_InternalId(postId, authorDTO.internalId());
-        User author = userService.getUserByInternalId(authorDTO.internalId()).orElseGet(() -> userService.createUser(authorDTO));
+        User author = userService.getUser(authorDTO);
         Post post = new Post();
         post.setId(postId);
         Vote vote;

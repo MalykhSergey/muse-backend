@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.t1.debut.muse.dto.UserDTO;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -25,6 +26,10 @@ public class User {
     private UserType userType;
     @Column
     private String name;
+    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
+    private List<Post> posts;
+    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
+    private List<Vote> votes;
 
     public User(UserDTO userDTO) {
         this.id = userDTO.id();

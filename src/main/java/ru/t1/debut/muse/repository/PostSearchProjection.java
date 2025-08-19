@@ -19,7 +19,7 @@ public interface PostSearchProjection {
     LocalDateTime getUpdated();
     Long getScore();
     Long getAnswerCount();
-    String getUserVote();
+    String getVoteType();
     String getTags();
     Long getTotalCount();
 }

@@ -2,6 +2,10 @@
 
 Документация проекта: https://malykhsergey.github.io/muse-service/
 
+*Для миграций БД используется Flyway. Схема БД в src\main\resources\db\migrations*
+
+*Авторизация через внешний сервис. В данном случае KeyCloak.*
+
 ## Для локального развёртывания
 
 Запуск в Docker:
@@ -9,7 +13,7 @@
     docker compose up -d muse
 ```
 
-UI для API (с документацией в будущем): http://127.0.0.1/swagger-ui/index.html
+UI для API (с документацией в будущем): http://127.0.0.1/api/swagger-ui/index.html
 
 Запрос для получения токенов:
 ```shell

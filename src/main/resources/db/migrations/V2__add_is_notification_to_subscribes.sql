@@ -1,0 +1,2 @@
+ALTER TABLE posts_subscribes ADD COLUMN is_notification BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE tags_subscribes ADD COLUMN is_notification BOOLEAN NOT NULL DEFAULT FALSE;

@@ -35,7 +35,7 @@ public final class PostDTO {
     private String tags;
 
 
-    public static PostDTO fromNewPost(Post post) {
+    public static PostDTO fromNewPost(Post post, String tags) {
         return new PostDTO(
                 post.getId(),
                 post.getTitle(),
@@ -49,7 +49,7 @@ public final class PostDTO {
                 0L,
                 0L,
                 null,
-                null
+                tags
         );
     }
 
@@ -68,7 +68,7 @@ public final class PostDTO {
                 post.getUpdated(),
                 post.getScore(),
                 post.getAnswerCount(),
-                post.getUserVote() == null ? null : VoteType.valueOf(post.getUserVote()),
+                post.getVoteType() == null ? null : VoteType.valueOf(post.getVoteType()),
                 post.getTags()
         );
     }

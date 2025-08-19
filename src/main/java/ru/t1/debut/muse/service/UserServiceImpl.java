@@ -6,9 +6,6 @@ import ru.t1.debut.muse.dto.UserDTO;
 import ru.t1.debut.muse.entity.User;
 import ru.t1.debut.muse.repository.UserRepository;
 
-import java.util.Optional;
-import java.util.UUID;
-
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
@@ -19,12 +16,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> getUserByInternalId(UUID uuid) {
-        return userRepository.findByInternalId(uuid);
-    }
-
-    @Override
-    public User createUser(UserDTO userDTO) {
-        return userRepository.save(new User(userDTO));
+    public User getUser(UserDTO userDTO) {
+        return userRepository.findByInternalId(userDTO.internalId()).orElseGet(() -> userRepository.save(new User(userDTO)));
     }
 }

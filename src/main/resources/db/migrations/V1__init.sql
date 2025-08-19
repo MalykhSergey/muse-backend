@@ -26,7 +26,14 @@ CREATE TABLE posts (
     parent_id BIGINT REFERENCES posts(id) ON DELETE SET NULL,
     answer_id BIGINT REFERENCES posts(id) ON DELETE SET NULL,
     created TIMESTAMP,
-    updated TIMESTAMP
+    updated TIMESTAMP,
+    search_vector tsvector
+        GENERATED ALWAYS AS (
+          setweight(to_tsvector('english', coalesce(title,'')), 'A') ||
+          setweight(to_tsvector('english', coalesce(body,'')),  'B') ||
+          setweight(to_tsvector('russian',  coalesce(title,'')), 'A') ||
+          setweight(to_tsvector('russian',  coalesce(body,'')),  'B')
+        ) STORED
 );
 
 -- Таблица комментариев
@@ -54,7 +61,7 @@ CREATE TABLE tags (
     name VARCHAR(255) UNIQUE NOT NULL,
     post_id BIGINT REFERENCES posts(id)
 );
--- Таблица связей тего и постов
+-- Таблица связей тегов и постов
 CREATE TABLE posts_tags (
     post_id BIGINT REFERENCES posts(id) NOT NULL,
     tag_id BIGINT REFERENCES tags(id) NOT NULL,

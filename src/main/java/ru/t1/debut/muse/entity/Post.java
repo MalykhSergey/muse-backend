@@ -8,6 +8,8 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 
 @Entity
@@ -30,10 +32,10 @@ public class Post {
     @ManyToOne
     @JoinColumn(name = "author_id")
     private User author;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id", updatable = false)
     private Post parent;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "answer_id")
     private Post answer;
     @Column(updatable = false)
@@ -44,6 +46,23 @@ public class Post {
     private List<Vote> votes;
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
     private List<Post> answers;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "posts_tags",
+            joinColumns = @JoinColumn(name = "post_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private Set<Tag> tags;
 
+    @Override
+    public final boolean equals(Object o) {
+        if (!(o instanceof Post post)) return false;
+        return Objects.equals(id, post.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
 }
 

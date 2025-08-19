@@ -12,15 +12,18 @@ public class PostSubscribe {
     @EmbeddedId
     private PostSubscribeId postSubscribeId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("postId")
     @JoinColumn(name = "post_id")
     private Post post;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("userId")
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Column
+    private boolean isNotification;
 
 }
 
