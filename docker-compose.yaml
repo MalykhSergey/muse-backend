@@ -10,6 +10,8 @@ services:
       DB_URL: postgres-spring:5432/muse
       ISSUER_URI: http://keycloak:8080/realms/users-auth
       SPRING_PROFILES_ACTIVE: docker
+      SPRING_KAFKA_BOOTSTRAP-SERVERS: broker:29092
+      NOTIFICATIONS-TOPIC: notifications
     volumes:
       - maven:/root/.m2
     ports:
