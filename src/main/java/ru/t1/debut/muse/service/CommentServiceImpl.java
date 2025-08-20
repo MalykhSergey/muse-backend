@@ -60,11 +60,13 @@ public class CommentServiceImpl implements CommentService {
 
     private void sendNotifications(Post post, Comment comment) {
         Set<UUID> parentPostSubscribers = postSubscribeService.getSubscribersUUIDForPost(post.getId());
-        parentPostSubscribers.remove(post.getAuthor().getInternalId());
         EventMessage eventMessage = new CreateCommentEvent(EventType.NEW_COMMENT_FOR_POST, parentPostSubscribers, post.getId(), comment.getId());
-        EventMessage eventMessageForPostAuthor = new CreateCommentEvent(EventType.NEW_COMMENT_FOR_YOUR_POST, Set.of(post.getAuthor().getInternalId()), post.getId(), comment.getId());
+        if (post.getAuthor() != null && post.getAuthor().getInternalId() != null) {
+            parentPostSubscribers.remove(post.getAuthor().getInternalId());
+            EventMessage eventMessageForPostAuthor = new CreateCommentEvent(EventType.NEW_COMMENT_FOR_YOUR_POST, Set.of(post.getAuthor().getInternalId()), post.getId(), comment.getId());
+            notificationService.sendNotification(eventMessageForPostAuthor);
+        }
         notificationService.sendNotification(eventMessage);
-        notificationService.sendNotification(eventMessageForPostAuthor);
     }
 
     @Override
