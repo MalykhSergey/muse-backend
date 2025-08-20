@@ -40,7 +40,7 @@ springdoc:
     path: /swagger-ui.html
 server:
   servlet:
-    context-path: /api
+    context-path: ${CONTEXT-PATH:/api/muse}
   port: 8080
 management:
   endpoints:
