@@ -70,8 +70,8 @@ BEGIN
         ORDER BY
             CASE WHEN sort_by = 'CREATED' AND sort_dir = 'ASC'  THEN p.created END ASC,
             CASE WHEN sort_by = 'CREATED' AND sort_dir = 'DESC' THEN p.created END DESC,
-            CASE WHEN sort_by = 'SCORE'   AND sort_dir = 'ASC'  THEN s.score END ASC,
-            CASE WHEN sort_by = 'SCORE'   AND sort_dir = 'DESC' THEN s.score END DESC,
+            CASE WHEN sort_by = 'SCORE'   AND sort_dir = 'ASC'  THEN s.score END ASC NULLS FIRST,
+            CASE WHEN sort_by = 'SCORE'   AND sort_dir = 'DESC' THEN s.score END DESC NULLS LAST,
             p.created DESC
         LIMIT limit_param OFFSET offset_param
     )
@@ -105,8 +105,8 @@ BEGIN
     ORDER BY
         CASE WHEN sort_by = 'CREATED' AND sort_dir = 'ASC'  THEN p.created END ASC,
         CASE WHEN sort_by = 'CREATED' AND sort_dir = 'DESC' THEN p.created END DESC,
-        CASE WHEN sort_by = 'SCORE'   AND sort_dir = 'ASC'  THEN s.score END ASC,
-        CASE WHEN sort_by = 'SCORE'   AND sort_dir = 'DESC' THEN s.score END DESC,
+        CASE WHEN sort_by = 'SCORE'   AND sort_dir = 'ASC'  THEN s.score END ASC NULLS FIRST,
+        CASE WHEN sort_by = 'SCORE'   AND sort_dir = 'DESC' THEN s.score END DESC NULLS LAST,
         p.created DESC;
 END;
 $$ LANGUAGE plpgsql;

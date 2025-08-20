@@ -73,8 +73,8 @@ BEGIN
             CASE WHEN sort_by = 'RANK'    AND sort_dir = 'DESC' THEN ts_rank_cd(p.search_vector, tsq.q_union, 32) END DESC,
             CASE WHEN sort_by = 'CREATED' AND sort_dir = 'ASC'  THEN p.created END ASC,
             CASE WHEN sort_by = 'CREATED' AND sort_dir = 'DESC' THEN p.created END DESC,
-            CASE WHEN sort_by = 'SCORE'   AND sort_dir = 'ASC'  THEN 0 END ASC,
-            CASE WHEN sort_by = 'SCORE'   AND sort_dir = 'DESC' THEN 0 END DESC,
+            CASE WHEN sort_by = 'SCORE'   AND sort_dir = 'ASC'  THEN 0 END ASC NULLS FIRST,
+            CASE WHEN sort_by = 'SCORE'   AND sort_dir = 'DESC' THEN 0 END DESC NULLS LAST,
             ts_rank_cd(p.search_vector, tsq.q_union, 32) DESC
         LIMIT limit_param OFFSET offset_param
     )
@@ -110,8 +110,8 @@ BEGIN
         CASE WHEN sort_by = 'RANK'    AND sort_dir = 'DESC' THEN ids.rank_val END DESC,
         CASE WHEN sort_by = 'CREATED' AND sort_dir = 'ASC'  THEN p.created END ASC,
         CASE WHEN sort_by = 'CREATED' AND sort_dir = 'DESC' THEN p.created END DESC,
-        CASE WHEN sort_by = 'SCORE'   AND sort_dir = 'ASC'  THEN s.score END ASC,
-        CASE WHEN sort_by = 'SCORE'   AND sort_dir = 'DESC' THEN s.score END DESC,
+        CASE WHEN sort_by = 'SCORE'   AND sort_dir = 'ASC'  THEN s.score END ASC NULLS FIRST,
+        CASE WHEN sort_by = 'SCORE'   AND sort_dir = 'DESC' THEN s.score END DESC NULLS LAST,
         ids.rank_val DESC;
 END;
 $$ LANGUAGE plpgsql;
