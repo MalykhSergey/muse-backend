@@ -12,12 +12,12 @@ public class TagSubscribe {
     @EmbeddedId
     private TagSubscribeId tagSubscribeId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("tagId")
     @JoinColumn(name = "tag_id")
     private Tag tag;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("userId")
     @JoinColumn(name = "user_id")
     private User user;
