@@ -1,6 +1,7 @@
 package ru.t1.debut.muse.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -110,6 +111,7 @@ class PostServiceImpl implements PostService {
         }
     }
 
+    @Transactional
     @Override
     public void updatePost(UpdatePostRequest updatePostRequest, Long id, UserDTO authorDTO) {
         User author = userService.getUser(authorDTO);
@@ -129,7 +131,6 @@ class PostServiceImpl implements PostService {
         post.setAnswer(answer);
         post.setUpdated(now);
         post.setTags(tags);
-        postRepository.save(post);
     }
 
     @Override
