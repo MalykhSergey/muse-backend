@@ -12,6 +12,6 @@ public class PostSubscribeDTO {
 
     public PostSubscribeDTO(PostSubscribe postSubscribe){
         this.postId = postSubscribe.getPostSubscribeId().getPostId();
-        this.isNotification = getIsNotification();
+        this.isNotification = postSubscribe.isNotification();
     }
 }
