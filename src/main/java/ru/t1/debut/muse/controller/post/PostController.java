@@ -67,7 +67,7 @@ public class PostController {
         return new ResponseEntity<>(postService.createPost(createPostRequest, author), HttpStatus.CREATED);
     }
 
-    @Operation(summary = "Устанавливает ответ к посту")
+    @Operation(summary = "Обновить пост")
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updatePost(@PathVariable Long id, @Valid @RequestBody UpdatePostRequest updatePostRequest, @AuthenticationPrincipal Jwt user) {
@@ -75,6 +75,7 @@ public class PostController {
         postService.updatePost(updatePostRequest, id, author);
     }
 
+    @Operation(summary = "Устанавливает ответ к посту")
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void setAnswer(@PathVariable Long id, @Valid @RequestBody SetAnswerRequest setAnswerRequest, @AuthenticationPrincipal Jwt user) {
