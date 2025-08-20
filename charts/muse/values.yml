@@ -40,7 +40,12 @@ ingress:
   hosts:
     - host: muse.innoca.local
       paths:
-        - path: /api
+        - path: /api/posts
+          pathType: Prefix
+          service:
+            name: ""
+            port: 8080
+        - path: /api/comments
           pathType: Prefix
           service:
             name: ""
