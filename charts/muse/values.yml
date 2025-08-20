@@ -2,6 +2,7 @@ replicaCount: 1
 
 spring:
   profile: dev
+  contextPath: /api/muse
 
 image:
   repository: change/me
@@ -40,12 +41,7 @@ ingress:
   hosts:
     - host: muse.innoca.local
       paths:
-        - path: /api/posts
-          pathType: Prefix
-          service:
-            name: ""
-            port: 8080
-        - path: /api/comments
+        - path: /api/muse
           pathType: Prefix
           service:
             name: ""
