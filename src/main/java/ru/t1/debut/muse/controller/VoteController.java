@@ -2,6 +2,7 @@ package ru.t1.debut.muse.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -33,5 +34,13 @@ public class VoteController {
     public ResponseEntity<VoteDTO> getVote(@PathVariable("id") Long postId, @AuthenticationPrincipal Jwt user) {
         UserDTO author = new UserDTO(user);
         return ResponseEntity.ok(VoteDTO.fromVote(voteService.getUserVoteForPost(postId, author)));
+    }
+
+    @Operation(summary = "Удалить голос за пост", description = "Удаляет голос авторизованного пользователя на указанный пост")
+    @DeleteMapping
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteVote(@PathVariable("id") Long postId, @AuthenticationPrincipal Jwt user) {
+        UserDTO author = new UserDTO(user);
+        voteService.deleteVoteForPost(postId, author);
     }
 }

@@ -8,4 +8,6 @@ public interface VoteService {
     void createVote(UserDTO author, VoteType voteType, long postId);
 
     Vote getUserVoteForPost(long postId, UserDTO user);
+
+    void deleteVoteForPost(long postId, UserDTO user);
 }

@@ -1,5 +1,6 @@
 package ru.t1.debut.muse.service;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.t1.debut.muse.dto.UserDTO;
@@ -25,25 +26,33 @@ public class VoteServiceImpl implements VoteService {
     }
 
     @Override
+    @Transactional
     public void createVote(UserDTO authorDTO, VoteType voteType, long postId) {
-        Optional<Vote> stored_vote = voteRepository.findByPost_IdAndAuthor_InternalId(postId, authorDTO.internalId());
         User author = userService.getUser(authorDTO);
-        Post post = new Post();
-        post.setId(postId);
+        Optional<Vote> stored_vote = voteRepository.findByPostIdAndAuthorId(postId, author.getId());
         Vote vote;
         if (stored_vote.isEmpty()) {
+            Post post = new Post();
+            post.setId(postId);
             vote = new Vote(null, author, post, LocalDateTime.now(), voteType);
+            voteRepository.save(vote);
         } else {
             vote = stored_vote.get();
             vote.setType(voteType);
             vote.setCreated(LocalDateTime.now());
         }
-        voteRepository.save(vote);
     }
 
     @Override
     public Vote getUserVoteForPost(long postId, UserDTO user) {
-        return voteRepository.findByPost_IdAndAuthor_InternalId(postId, user.internalId())
+        User author = userService.getUser(user);
+        return voteRepository.findByPostIdAndAuthorId(postId, author.getId())
                 .orElseThrow(ResourceNotFoundException::new);
+    }
+
+    @Override
+    public void deleteVoteForPost(long postId, UserDTO user) {
+        User author = userService.getUser(user);
+        voteRepository.deleteByPostIdAndAuthorId(postId, author.getId());
     }
 }

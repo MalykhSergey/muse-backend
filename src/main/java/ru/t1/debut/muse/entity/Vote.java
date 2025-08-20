@@ -1,3 +1,4 @@
+
 package ru.t1.debut.muse.entity;
 
 import jakarta.persistence.*;
@@ -21,13 +22,11 @@ public class Vote {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id")
     User author;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     Post post;
     @Column
     private LocalDateTime created;
     @Enumerated(EnumType.STRING)
     private VoteType type;
-
 }
-
