@@ -29,7 +29,6 @@ services:
       KC_DB_PASSWORD: root
       KC_DB_URL: jdbc:postgresql://postgres-keycloak:5432/keycloak
       KEYCLOAK_IMPORT: /opt/keycloak/data/import/realm-export.json
-      KEYCLOAK_HOSTNAME: keycloak
       KC_HOSTNAME: keycloak
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
@@ -91,6 +90,10 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+
+networks:
+  default:
+    name: muse-network
 
 volumes:
   postgres_keycloak_data:
