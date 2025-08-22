@@ -1,10 +1,12 @@
 package ru.t1.debut.muse.repository;
 
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import ru.t1.debut.muse.dto.PostDTO;
 import ru.t1.debut.muse.entity.Post;
 
 import java.util.List;
@@ -32,4 +34,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Modifying
     @Query("UPDATE Post p SET p.answer.id = :answerId WHERE p.id = :postId AND p.author.id = :authorId")
     void setAnswerByIdAndAuthorId(@Param("answerId") Long answerId, @Param("postId") Long postId, @Param("authorId") Long authorId);
+
+    @Query(value = "SELECT * FROM get_opened_questions_subscribed_tags(:userId, :limit, :offset, :sortBy, :sortDir)", nativeQuery = true)
+    List<PostSearchProjection> getPostsBySubscribedTags(Long userId, int limit, long offset, String sortBy, String sortDir);
 }

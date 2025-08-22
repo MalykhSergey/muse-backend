@@ -70,6 +70,14 @@ class PostServiceImpl implements PostService {
         postRepository.setAnswerByIdAndAuthorId(setAnswerRequest.getAnswerId(), postId, authUser.getId());
     }
 
+    @Override
+    public Page<PostDTO> getPostsBySubscribedTags(UserDTO userDTO, int page, int size, SortBy sortBy, SortDir sortDir) {
+        User authUser = userService.getUser(userDTO);
+        List<PostSearchProjection> result = postRepository.getPostsBySubscribedTags(authUser.getId(), size, (long) page * size, sortBy.name(), sortDir.name());
+        long total = result.isEmpty() ? 0 : result.getFirst().getTotalCount();
+        return new PageImpl<>(result.stream().map(PostDTO::fromPostSearchResult).toList(), PageRequest.of(page, size), total);
+    }
+
     @SneakyThrows
     @Override
     public PostDTO createPost(CreatePostRequest createPostRequest, UserDTO authorDTO) {
