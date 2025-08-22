@@ -1,8 +1,6 @@
 package ru.t1.debut.muse.service;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import ru.t1.debut.muse.controller.post.SortBy;
 import ru.t1.debut.muse.controller.post.SortDir;
 import ru.t1.debut.muse.dto.*;

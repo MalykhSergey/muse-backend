@@ -57,7 +57,7 @@ BEGIN
         SELECT COUNT(*)::BIGINT AS cnt
         FROM posts p
         WHERE
-            (parent_id_param IS NULL AND p.parent_id IS NULL)
+            (parent_id_param IS NULL AND p.parent_id IS NULL) -- CHECK TYPE
             OR (parent_id_param IS NOT NULL AND p.parent_id = parent_id_param)
     ),
     post_ids AS (
@@ -65,7 +65,7 @@ BEGIN
         FROM posts p
         LEFT JOIN scores s ON s.post_id = p.id
         WHERE
-            (parent_id_param IS NULL AND p.parent_id IS NULL)
+            (parent_id_param IS NULL AND p.post_type = 'QUESTION')
             OR (parent_id_param IS NOT NULL AND p.parent_id = parent_id_param)
         ORDER BY
             CASE WHEN sort_by = 'CREATED' AND sort_dir = 'ASC'  THEN p.created END ASC,
