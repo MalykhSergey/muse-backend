@@ -15,6 +15,10 @@
 
 UI для API (с документацией в будущем): http://127.0.0.1/api/swagger-ui/index.html
 
+Для тестирования доступны два пользователя:
+testet с паролем 123
+moder с паролем moder
+
 Запрос для получения токенов:
 ```shell
     curl -X POST "http://localhost:8080/realms/users-auth/protocol/openid-connect/token" \
