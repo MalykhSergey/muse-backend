@@ -1,3 +1,5 @@
+DROP FUNCTION IF EXISTS get_post_rich;
+
 CREATE OR REPLACE FUNCTION get_post_rich(
     user_id_param BIGINT,
     post_id_param BIGINT
@@ -19,6 +21,7 @@ RETURNS TABLE (
     score BIGINT,
     answer_count BIGINT,
     vote_type vote_type,
+    is_notification BOOLEAN,
     tags JSONB
 ) AS $$
 BEGIN
@@ -51,6 +54,7 @@ BEGIN
             WHERE a.parent_id = p.id
         ), 0) AS answer_count,
         v.type,
+        is_notifications,
         COALESCE(
             (SELECT jsonb_agg(DISTINCT jsonb_build_object('id', t.id, 'name', t.name, 'postId', t.post_id))
              FROM posts_tags pt
@@ -61,6 +65,7 @@ BEGIN
     FROM posts p
     LEFT JOIN users u ON p.author_id = u.id
     LEFT JOIN votes v ON p.id = v.post_id AND user_id_param = v.author_id
+    LEFT JOIN posts_subscribes ps ON ps.post_id = p.id AND ps.user_id = user_id_param
     WHERE p.id = post_id_param
     GROUP BY
         p.id, p.title, p.body, p.post_type, p.author_id,

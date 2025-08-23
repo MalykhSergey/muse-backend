@@ -25,7 +25,7 @@ RETURNS TABLE (
     score BIGINT,
     answer_count BIGINT,
     vote_type vote_type,
-    is_notifications BOOLEAN,
+    is_notification BOOLEAN,
     tags JSONB,
     total_count BIGINT
 ) AS $$
