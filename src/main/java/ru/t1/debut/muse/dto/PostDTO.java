@@ -55,7 +55,7 @@ public final class PostDTO {
 
     public static PostDTO fromPostSearchResult(PostSearchProjection post) {
         UserType userType = post.getUserType() == null ? null : UserType.valueOf(post.getUserType());
-        UserDTO author = new UserDTO(post.getAuthorId(), post.getExternalId(), post.getInternalId(), userType, post.getAuthorName());
+        UserDTO author = new UserDTO(post.getAuthorId(), post.getExternalId(), post.getInternalId(), userType, post.getAuthorName(), null);
         return new PostDTO(
                 post.getId(),
                 post.getTitle(),

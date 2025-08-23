@@ -7,7 +7,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import ru.t1.debut.muse.dto.CreateSubscribeRequest;
 import ru.t1.debut.muse.dto.PostSubscribeDTO;
@@ -27,31 +26,27 @@ public class PostSubscribeController {
 
     @Operation(summary = "Получить подписки на посты")
     @GetMapping
-    public ResponseEntity<Page<PostSubscribeDTO>> getAllPostSubscribe(@RequestParam int size, @RequestParam int page, @AuthenticationPrincipal Jwt authUser) {
-        UserDTO userDTO = new UserDTO(authUser);
+    public ResponseEntity<Page<PostSubscribeDTO>> getAllPostSubscribe(@RequestParam int size, @RequestParam int page, @AuthenticationPrincipal UserDTO userDTO) {
         return ResponseEntity.ok(postSubscribeService.getAll(PageRequest.of(page, size), userDTO));
     }
 
     @Operation(summary = "Создать подписку на пост")
     @PostMapping("/{id}")
-    public ResponseEntity<PostSubscribeDTO> createPostSubscribe(@PathVariable long id, @RequestBody CreateSubscribeRequest createSubscribeRequest, @AuthenticationPrincipal Jwt authUser) {
-        UserDTO userDTO = new UserDTO(authUser);
+    public ResponseEntity<PostSubscribeDTO> createPostSubscribe(@PathVariable long id, @RequestBody CreateSubscribeRequest createSubscribeRequest, @AuthenticationPrincipal UserDTO userDTO) {
         return ResponseEntity.ok(postSubscribeService.create(id, createSubscribeRequest, userDTO));
     }
 
     @Operation(summary = "Обновить подписку на пост (пока повторяет функцию создания)")
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updatePostSubscribe(@PathVariable long id, @RequestBody UpdateSubscribeRequest updateSubscribeRequest, @AuthenticationPrincipal Jwt authUser) {
-        UserDTO userDTO = new UserDTO(authUser);
+    public void updatePostSubscribe(@PathVariable long id, @RequestBody UpdateSubscribeRequest updateSubscribeRequest, @AuthenticationPrincipal UserDTO userDTO) {
         postSubscribeService.update(id, updateSubscribeRequest, userDTO);
     }
 
     @Operation(summary = "Удалить подписку на пост")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deletePostSubscribe(@PathVariable long id, @AuthenticationPrincipal Jwt authUser) {
-        UserDTO userDTO = new UserDTO(authUser);
+    public void deletePostSubscribe(@PathVariable long id, @AuthenticationPrincipal UserDTO userDTO) {
         postSubscribeService.delete(id, userDTO);
     }
 }

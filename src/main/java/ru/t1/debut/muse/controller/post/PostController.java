@@ -7,7 +7,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import ru.t1.debut.muse.dto.*;
 import ru.t1.debut.muse.service.PostService;
@@ -36,8 +35,7 @@ public class PostController {
             @RequestParam int size,
             @RequestParam(required = false) SortBy sortBy,
             @RequestParam(required = false) SortDir sortDir,
-            @AuthenticationPrincipal Jwt user) {
-        UserDTO userDTO = new UserDTO(user);
+            @AuthenticationPrincipal UserDTO userDTO) {
         if (sortBy == null) {
             sortBy = SortBy.CREATED;
         }
@@ -52,8 +50,7 @@ public class PostController {
             description = "Возвращает пост по указанному идентификатору"
     )
     @GetMapping("/{id}")
-    public ResponseEntity<PostDTO> getPost(@PathVariable Long id, @AuthenticationPrincipal Jwt user) {
-        UserDTO userDTO = new UserDTO(user);
+    public ResponseEntity<PostDTO> getPost(@PathVariable Long id, @AuthenticationPrincipal UserDTO userDTO) {
         return ResponseEntity.ok(postService.getPost(id, userDTO));
     }
 
@@ -62,25 +59,22 @@ public class PostController {
             description = "Создает новый пост от имени аутентифицированного пользователя"
     )
     @PostMapping
-    public ResponseEntity<PostDTO> createPost(@Valid @RequestBody CreatePostRequest createPostRequest, @AuthenticationPrincipal Jwt user) {
-        UserDTO author = new UserDTO(user);
-        return new ResponseEntity<>(postService.createPost(createPostRequest, author), HttpStatus.CREATED);
+    public ResponseEntity<PostDTO> createPost(@Valid @RequestBody CreatePostRequest createPostRequest, @AuthenticationPrincipal UserDTO userDTO) {
+        return new ResponseEntity<>(postService.createPost(createPostRequest, userDTO), HttpStatus.CREATED);
     }
 
     @Operation(summary = "Обновить пост")
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updatePost(@PathVariable Long id, @Valid @RequestBody UpdatePostRequest updatePostRequest, @AuthenticationPrincipal Jwt user) {
-        UserDTO author = new UserDTO(user);
-        postService.updatePost(updatePostRequest, id, author);
+    public void updatePost(@PathVariable Long id, @Valid @RequestBody UpdatePostRequest updatePostRequest, @AuthenticationPrincipal UserDTO userDTO) {
+        postService.updatePost(updatePostRequest, id, userDTO);
     }
 
     @Operation(summary = "Устанавливает ответ к посту")
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void setAnswer(@PathVariable Long id, @Valid @RequestBody SetAnswerRequest setAnswerRequest, @AuthenticationPrincipal Jwt user) {
-        UserDTO author = new UserDTO(user);
-        postService.setAnswer(setAnswerRequest, id, author);
+    public void setAnswer(@PathVariable Long id, @Valid @RequestBody SetAnswerRequest setAnswerRequest, @AuthenticationPrincipal UserDTO userDTO) {
+        postService.setAnswer(setAnswerRequest, id, userDTO);
     }
 
     @DeleteMapping("/{id}")
@@ -89,9 +83,8 @@ public class PostController {
             summary = "Удалить пост",
             description = "Удаляет пост по идентификатору (только для автора поста)"
     )
-    public void deletePost(@PathVariable Long id, @AuthenticationPrincipal Jwt user) {
-        UserDTO author = new UserDTO(user);
-        postService.deletePost(id, author);
+    public void deletePost(@PathVariable Long id, @AuthenticationPrincipal UserDTO userDTO) {
+        postService.deletePost(id, userDTO);
     }
 
 }

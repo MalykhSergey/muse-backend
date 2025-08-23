@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,8 +30,7 @@ public class FeedController {
             @RequestParam int size,
             @RequestParam(required = false) SortBy sortBy,
             @RequestParam(required = false) SortDir sortDir,
-            @AuthenticationPrincipal Jwt user) {
-        UserDTO userDTO = new UserDTO(user);
+            @AuthenticationPrincipal UserDTO userDTO) {
         if (sortBy == null) {
             sortBy = SortBy.CREATED;
         }

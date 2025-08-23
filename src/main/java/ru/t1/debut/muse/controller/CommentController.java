@@ -9,7 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import ru.t1.debut.muse.dto.CommentDTO;
 import ru.t1.debut.muse.dto.CreateCommentRequest;
@@ -39,24 +38,21 @@ public class CommentController {
 
     @Operation(summary = "Создать комментарий")
     @PostMapping
-    ResponseEntity<CommentDTO> createComment(@Valid @RequestBody CreateCommentRequest createCommentRequest, @AuthenticationPrincipal Jwt authUser) {
-        UserDTO userDTO = new UserDTO(authUser);
+    ResponseEntity<CommentDTO> createComment(@Valid @RequestBody CreateCommentRequest createCommentRequest, @AuthenticationPrincipal UserDTO userDTO) {
         return new ResponseEntity<>(commentService.create(createCommentRequest, userDTO), HttpStatus.CREATED);
     }
 
     @Operation(summary = "Обновить комментарий")
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    void updateComment(@PathVariable long id, @Valid @RequestBody UpdateCommentRequest updateCommentRequest, @AuthenticationPrincipal Jwt authUser) {
-        UserDTO userDTO = new UserDTO(authUser);
+    void updateComment(@PathVariable long id, @Valid @RequestBody UpdateCommentRequest updateCommentRequest, @AuthenticationPrincipal UserDTO userDTO) {
         commentService.update(id, updateCommentRequest, userDTO);
     }
 
     @Operation(summary = "Удалить комментарий")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    void deleteComment(@PathVariable long id, @AuthenticationPrincipal Jwt authUser) {
-        UserDTO userDTO = new UserDTO(authUser);
+    void deleteComment(@PathVariable long id, @AuthenticationPrincipal UserDTO userDTO) {
         commentService.delete(id, userDTO);
     }
 }
