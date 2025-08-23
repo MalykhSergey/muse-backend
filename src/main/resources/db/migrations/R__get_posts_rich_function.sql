@@ -1,3 +1,5 @@
+DROP FUNCTION IF EXISTS get_posts_rich;
+
 CREATE OR REPLACE FUNCTION get_posts_rich(
     user_id_param BIGINT,
     parent_id_param BIGINT,
@@ -23,6 +25,7 @@ RETURNS TABLE (
     score BIGINT,
     answer_count BIGINT,
     vote_type vote_type,
+    is_notifications BOOLEAN,
     tags JSONB,
     total_count BIGINT
 ) AS $$
@@ -92,6 +95,7 @@ BEGIN
         COALESCE(s.score, 0) AS score,
         COALESCE(a.answer_count, 0) AS answer_count,
         uv.type AS vote_type,
+        is_notifications,
         t.tags,
         total.cnt AS total_count
     FROM post_ids ids
@@ -101,6 +105,7 @@ BEGIN
     LEFT JOIN answers a ON a.post_id = p.id
     LEFT JOIN tags_agg t ON t.post_id = p.id
     LEFT JOIN user_votes uv ON uv.post_id = p.id
+    LEFT JOIN posts_subscribes ps ON ps.post_id = p.id AND ps.user_id = user_id_param
     CROSS JOIN total
     ORDER BY
         CASE WHEN sort_by = 'CREATED' AND sort_dir = 'ASC'  THEN p.created END ASC,

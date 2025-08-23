@@ -21,5 +21,6 @@ public interface PostSearchProjection {
     Long getAnswerCount();
     String getVoteType();
     String getTags();
+    Boolean getIsNotification();
     Long getTotalCount();
 }

@@ -27,6 +27,7 @@ public final class PostDTO {
     private Long score;
     private Long answersCount;
     private VoteType usersVote;
+    private Boolean subscribe;
     @JsonRawValue
     @Schema(
             example = "[{\"id\": 1, \"name\": \"java\", \"postId\": 1}, {\"id\": 2, \"name\": \"spring\", \"postId\": 2}]",
@@ -49,6 +50,7 @@ public final class PostDTO {
                 0L,
                 0L,
                 null,
+                null,
                 tags
         );
     }
@@ -69,6 +71,7 @@ public final class PostDTO {
                 post.getScore(),
                 post.getAnswerCount(),
                 post.getVoteType() == null ? null : VoteType.valueOf(post.getVoteType()),
+                post.getIsNotification(),
                 post.getTags()
         );
     }
