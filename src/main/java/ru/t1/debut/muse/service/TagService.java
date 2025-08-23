@@ -2,6 +2,7 @@ package ru.t1.debut.muse.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import ru.t1.debut.muse.dto.CreateTagRequest;
 import ru.t1.debut.muse.dto.TagDTO;
 
 public interface TagService {
@@ -9,4 +10,8 @@ public interface TagService {
 
     Page<TagDTO> getTags(Pageable pageable);
     Page<TagDTO> getTagsByPrefix(String tagPrefix,Pageable pageable);
+
+    TagDTO create(CreateTagRequest createTagRequest);
+
+    void delete(Long id);
 }

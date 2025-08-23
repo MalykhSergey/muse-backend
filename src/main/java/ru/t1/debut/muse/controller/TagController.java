@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.t1.debut.muse.dto.CreateTagRequest;
 import ru.t1.debut.muse.dto.TagDTO;
 import ru.t1.debut.muse.service.TagService;
 
@@ -31,5 +32,17 @@ public class TagController {
     @GetMapping("/{id}")
     public ResponseEntity<TagDTO> getTag(@PathVariable Long id) {
         return ResponseEntity.ok(tagService.getTag(id));
+    }
+
+    @Operation(summary = "Получить тэг")
+    @PostMapping
+    public ResponseEntity<TagDTO> createTag(@RequestBody CreateTagRequest createTagRequest) {
+        return ResponseEntity.ok(tagService.create(createTagRequest));
+    }
+
+    @Operation(summary = "Удалить тэг")
+    @DeleteMapping("/{id}")
+    public void deleteTag(@PathVariable Long id) {
+        tagService.delete(id);
     }
 }
