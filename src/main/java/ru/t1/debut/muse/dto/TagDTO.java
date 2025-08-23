@@ -1,9 +1,11 @@
 package ru.t1.debut.muse.dto;
 
+import jakarta.validation.constraints.NotNull;
 import ru.t1.debut.muse.entity.Post;
 import ru.t1.debut.muse.entity.Tag;
 
 public record TagDTO(
+        @NotNull
         Long id,
         String name,
         Long postId
