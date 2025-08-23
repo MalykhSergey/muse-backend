@@ -95,7 +95,7 @@ BEGIN
         COALESCE(s.score, 0) AS score,
         COALESCE(a.answer_count, 0) AS answer_count,
         uv.type AS vote_type,
-        is_notifications,
+        is_notification,
         t.tags,
         total.cnt AS total_count
     FROM post_ids ids
