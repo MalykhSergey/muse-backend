@@ -1,6 +1,7 @@
 package ru.t1.debut.muse.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,14 +33,14 @@ public class PostSubscribeController {
 
     @Operation(summary = "Создать подписку на пост")
     @PostMapping("/{id}")
-    public ResponseEntity<PostSubscribeDTO> createPostSubscribe(@PathVariable long id, @RequestBody CreateSubscribeRequest createSubscribeRequest, @AuthenticationPrincipal UserDTO userDTO) {
+    public ResponseEntity<PostSubscribeDTO> createPostSubscribe(@PathVariable long id, @Valid @RequestBody CreateSubscribeRequest createSubscribeRequest, @AuthenticationPrincipal UserDTO userDTO) {
         return ResponseEntity.ok(postSubscribeService.create(id, createSubscribeRequest, userDTO));
     }
 
     @Operation(summary = "Обновить подписку на пост (пока повторяет функцию создания)")
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updatePostSubscribe(@PathVariable long id, @RequestBody UpdateSubscribeRequest updateSubscribeRequest, @AuthenticationPrincipal UserDTO userDTO) {
+    public void updatePostSubscribe(@PathVariable long id, @Valid @RequestBody UpdateSubscribeRequest updateSubscribeRequest, @AuthenticationPrincipal UserDTO userDTO) {
         postSubscribeService.update(id, updateSubscribeRequest, userDTO);
     }
 

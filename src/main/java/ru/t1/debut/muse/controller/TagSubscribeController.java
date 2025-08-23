@@ -1,6 +1,7 @@
 package ru.t1.debut.muse.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,14 +33,14 @@ public class TagSubscribeController {
 
     @Operation(summary = "Создать подписку на тэг")
     @PostMapping("/{id}")
-    public ResponseEntity<TagSubscribeDTO> createTagSubscribe(@PathVariable long id, @RequestBody CreateSubscribeRequest createSubscribeRequest, @AuthenticationPrincipal UserDTO userDTO) {
+    public ResponseEntity<TagSubscribeDTO> createTagSubscribe(@PathVariable long id, @Valid @RequestBody CreateSubscribeRequest createSubscribeRequest, @AuthenticationPrincipal UserDTO userDTO) {
         return ResponseEntity.ok(tagSubscribeService.create(id, createSubscribeRequest, userDTO));
     }
 
     @Operation(summary = "Обновить подписку на тэг (пока повторяет функцию создания)")
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updateTagSubscribe(@PathVariable long id, @RequestBody UpdateSubscribeRequest updateSubscribeRequest, @AuthenticationPrincipal UserDTO userDTO) {
+    public void updateTagSubscribe(@PathVariable long id, @Valid @RequestBody UpdateSubscribeRequest updateSubscribeRequest, @AuthenticationPrincipal UserDTO userDTO) {
         tagSubscribeService.update(id, updateSubscribeRequest, userDTO);
     }
 
