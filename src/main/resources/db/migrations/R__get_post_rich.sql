@@ -54,7 +54,7 @@ BEGIN
             WHERE a.parent_id = p.id
         ), 0) AS answer_count,
         v.type,
-        is_notifications,
+        ps.is_notification,
         COALESCE(
             (SELECT jsonb_agg(DISTINCT jsonb_build_object('id', t.id, 'name', t.name, 'postId', t.post_id))
              FROM posts_tags pt
@@ -71,6 +71,6 @@ BEGIN
         p.id, p.title, p.body, p.post_type, p.author_id,
         u.external_id, u.internal_id, u.user_type, u.name,
         p.parent_id, p.answer_id, p.created, p.updated,
-        v.type;
+        ps.is_notification, v.type;
 END;
 $$ LANGUAGE plpgsql;
