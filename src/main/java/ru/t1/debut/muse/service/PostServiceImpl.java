@@ -21,9 +21,11 @@ import ru.t1.debut.muse.entity.event.EventType;
 import ru.t1.debut.muse.exception.ResourceNotFoundException;
 import ru.t1.debut.muse.repository.PostRepository;
 import ru.t1.debut.muse.repository.PostSearchProjection;
+import ru.t1.debut.muse.repository.TagRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -37,14 +39,18 @@ class PostServiceImpl implements PostService {
     private final UserService userService;
     private final ObjectMapper objectMapper;
 
+    private final TagRepository tagRepository;
+
     @Autowired
-    PostServiceImpl(PostRepository postRepository, PostSubscribeService postSubscribeService, TagSubscribeService tagSubscribeService, NotificationService notificationService, UserService userService, ObjectMapper objectMapper) {
+    PostServiceImpl(PostRepository postRepository, PostSubscribeService postSubscribeService, TagSubscribeService tagSubscribeService, NotificationService notificationService, UserService userService, ObjectMapper objectMapper,
+                    TagRepository tagRepository) {
         this.postRepository = postRepository;
         this.postSubscribeService = postSubscribeService;
         this.tagSubscribeService = tagSubscribeService;
         this.notificationService = notificationService;
         this.userService = userService;
         this.objectMapper = objectMapper;
+        this.tagRepository = tagRepository;
     }
 
     @Override
@@ -87,7 +93,7 @@ class PostServiceImpl implements PostService {
             parent = postRepository.findById(createPostRequest.getParentId()).orElseThrow(ResourceNotFoundException::new);
         }
         LocalDateTime now = LocalDateTime.now();
-        Set<Tag> tags = createPostRequest.getTags().stream().map(tag -> new Tag(tag.id(), null, null, null)).collect(Collectors.toSet());
+        Set<Tag> tags = createPostRequest.getTags().stream().map(tag -> tagRepository.findById(tag.id())).flatMap(Optional::stream).collect(Collectors.toSet());
         Post post = new Post(null, createPostRequest.getTitle(), createPostRequest.getBody(), createPostRequest.getPostType(), author, parent, null, now, now, null, null, tags);
         Post save = postRepository.save(post);
         sendNotifications(parent, post, tags);
