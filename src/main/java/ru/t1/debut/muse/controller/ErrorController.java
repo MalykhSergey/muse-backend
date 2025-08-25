@@ -25,21 +25,21 @@ public class ErrorController {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorDetails<?> handleUserNotFound(ResourceNotFoundException ex) {
-        String message = messageSource.getMessage("error.not_found", null, Locale.getDefault());
+    public ErrorDetails<?> handleUserNotFound(ResourceNotFoundException ex, Locale locale) {
+        String message = messageSource.getMessage("error.not_found", null, locale);
         return new ErrorDetails<>(message, null);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    protected ErrorDetails<Map<String, String>> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+    protected ErrorDetails<Map<String, String>> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, Locale locale) {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getAllErrors().forEach((error) -> {
             String fieldName = ((FieldError) error).getField();
             String message = error.getDefaultMessage();
             errors.put(fieldName, message);
         });
-        String message = messageSource.getMessage("error.invalid_argument", null, Locale.getDefault());
+        String message = messageSource.getMessage("error.invalid_argument", null, locale);
         return new ErrorDetails<>(message, errors);
     }
 }
