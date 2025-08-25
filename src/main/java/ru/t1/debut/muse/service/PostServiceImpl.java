@@ -72,9 +72,9 @@ class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Page<PostDTO> getPostsBySubscribedTags(UserDTO userDTO, int page, int size, SortBy sortBy, SortDir sortDir) {
+    public Page<PostDTO> getPostsBySubscribedTags(UserDTO userDTO, Boolean opened, int page, int size, SortBy sortBy, SortDir sortDir) {
         User authUser = userService.getUser(userDTO);
-        List<PostSearchProjection> result = postRepository.getPostsBySubscribedTags(authUser.getId(), size, (long) page * size, sortBy.name(), sortDir.name());
+        List<PostSearchProjection> result = postRepository.getPostsBySubscribedTags(authUser.getId(),opened, size, (long) page * size, sortBy.name(), sortDir.name());
         long total = result.isEmpty() ? 0 : result.getFirst().getTotalCount();
         return new PageImpl<>(result.stream().map(PostDTO::fromPostSearchResult).toList(), PageRequest.of(page, size), total);
     }

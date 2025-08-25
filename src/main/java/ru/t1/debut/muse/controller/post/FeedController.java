@@ -26,6 +26,7 @@ public class FeedController {
     @Operation(summary = "Возвращает открытые вопросы по подпискам пользователя")
     @GetMapping
     public ResponseEntity<Page<PostDTO>> getPostsBySubscribedTags(
+            @RequestParam(required = false, defaultValue = "false") Boolean opened,
             @RequestParam int page,
             @RequestParam int size,
             @RequestParam(required = false) SortBy sortBy,
@@ -37,6 +38,6 @@ public class FeedController {
         if (sortDir == null) {
             sortDir = SortDir.DESC;
         }
-        return ResponseEntity.ok(postService.getPostsBySubscribedTags(userDTO, page, size, sortBy, sortDir));
+        return ResponseEntity.ok(postService.getPostsBySubscribedTags(userDTO,opened, page, size, sortBy, sortDir));
     }
 }

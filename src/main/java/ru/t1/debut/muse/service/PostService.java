@@ -18,5 +18,5 @@ public interface PostService {
 
     void setAnswer(SetAnswerRequest setAnswerRequest, Long id, UserDTO author);
 
-    Page<PostDTO> getPostsBySubscribedTags(UserDTO userDTO, int page, int size, SortBy sortBy, SortDir sortDir);
+    Page<PostDTO> getPostsBySubscribedTags(UserDTO userDTO, Boolean opened, int page, int size, SortBy sortBy, SortDir sortDir);
 }

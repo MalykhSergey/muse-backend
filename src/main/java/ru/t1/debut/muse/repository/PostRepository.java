@@ -33,6 +33,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("UPDATE Post p SET p.answer.id = :answerId WHERE p.id = :postId AND p.author.id = :authorId")
     void setAnswerByIdAndAuthorId(@Param("answerId") Long answerId, @Param("postId") Long postId, @Param("authorId") Long authorId);
 
-    @Query(value = "SELECT * FROM get_opened_questions_subscribed_tags(:userId, :limit, :offset, :sortBy, :sortDir)", nativeQuery = true)
-    List<PostSearchProjection> getPostsBySubscribedTags(Long userId, int limit, long offset, String sortBy, String sortDir);
+    @Query(value = "SELECT * FROM get_opened_questions_subscribed_tags(:userId, :opened, :limit, :offset, :sortBy, :sortDir)", nativeQuery = true)
+    List<PostSearchProjection> getPostsBySubscribedTags(Long userId, Boolean opened, int limit, long offset, String sortBy, String sortDir);
 }

@@ -1,6 +1,8 @@
+DROP FUNCTION IF EXISTS get_opened_questions_subscribed_tags;
 -- Возвращает открытые вопросы по подпискам пользователя
 CREATE OR REPLACE FUNCTION get_opened_questions_subscribed_tags(
     user_id_param BIGINT,
+    opened BOOLEAN,
     limit_param INTEGER,
     offset_param BIGINT,
     sort_by TEXT DEFAULT 'CREATED',
@@ -65,14 +67,14 @@ BEGIN
         JOIN tags_subscribes ts ON ts.tag_id = pt.tag_id
         WHERE ts.user_id = user_id_param
           AND p.post_type = 'QUESTION'
-          AND p.answer_id IS NULL
+          AND (opened = FALSE OR (opened = TRUE AND p.answer_id IS NULL))
     ),
     post_ids AS (
         SELECT p.id
         FROM posts p
         LEFT JOIN scores s ON s.post_id = p.id
         WHERE p.post_type = 'QUESTION'
-          AND p.answer_id IS NULL
+          AND (opened = FALSE OR (opened = TRUE AND p.answer_id IS NULL))
           AND EXISTS (
               SELECT 1
               FROM posts_tags pt
