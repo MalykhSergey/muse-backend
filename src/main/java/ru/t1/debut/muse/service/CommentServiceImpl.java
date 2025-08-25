@@ -15,6 +15,7 @@ import ru.t1.debut.muse.entity.User;
 import ru.t1.debut.muse.entity.event.CreateCommentEvent;
 import ru.t1.debut.muse.entity.event.EventMessage;
 import ru.t1.debut.muse.entity.event.EventType;
+import ru.t1.debut.muse.entity.event.ModeratorEvent;
 import ru.t1.debut.muse.exception.ResourceNotFoundException;
 import ru.t1.debut.muse.repository.CommentRepository;
 import ru.t1.debut.muse.repository.PostRepository;
@@ -61,25 +62,20 @@ public class CommentServiceImpl implements CommentService {
 
     private void sendNotifications(Post post, Comment comment) {
         Set<UUID> parentPostSubscribers = postSubscribeService.getSubscribersUUIDForPost(post.getId());
-        String title = getReducedTitle(comment.getBody());
-        EventMessage eventMessage = new CreateCommentEvent(EventType.NEW_COMMENT_FOR_POST, parentPostSubscribers, title, post.getId(), comment.getId());
+        EventMessage eventMessage = new CreateCommentEvent(EventType.NEW_COMMENT_FOR_POST, parentPostSubscribers, comment.getReducedTitle(), post.getId(), comment.getId());
         if (post.getAuthor() != null && post.getAuthor().getInternalId() != null) {
             parentPostSubscribers.remove(post.getAuthor().getInternalId());
-            EventMessage eventMessageForPostAuthor = new CreateCommentEvent(EventType.NEW_COMMENT_FOR_YOUR_POST, Set.of(post.getAuthor().getInternalId()), title, post.getId(), comment.getId());
+            EventMessage eventMessageForPostAuthor = new CreateCommentEvent(EventType.NEW_COMMENT_FOR_YOUR_POST, Set.of(post.getAuthor().getInternalId()), comment.getReducedTitle(), post.getId(), comment.getId());
             notificationService.sendNotification(eventMessageForPostAuthor);
         }
         notificationService.sendNotification(eventMessage);
     }
 
-    private static String getReducedTitle(String input) {
-        String title = input;
-        title = title.substring(0, Math.min(title.length(), 60));
-        return title;
-    }
-
     @Override
     public void update(long commentId, UpdateCommentRequest updateCommentRequest, UserDTO authUserDTO) {
         if (userService.checkUserRole(authUserDTO, Role.ROLE_MUSE_MODER)) {
+            Comment comment = commentRepository.findById(commentId).orElseThrow(ResourceNotFoundException::new);
+            sendNotificationToAuthor(comment, EventType.MODERATOR_EDIT_YOUR_COMMENT);
             commentRepository.updateById(commentId, updateCommentRequest.getBody(), LocalDateTime.now());
         }
         User author = userService.getUser(authUserDTO);
@@ -89,9 +85,19 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public void delete(long commentId, UserDTO authUserDTO) {
         if (userService.checkUserRole(authUserDTO, Role.ROLE_MUSE_MODER)) {
+            Comment comment = commentRepository.findById(commentId).orElseThrow(ResourceNotFoundException::new);
+            sendNotificationToAuthor(comment, EventType.MODERATOR_DELETE_YOUR_COMMENT);
             commentRepository.deleteById(commentId);
         }
         User author = userService.getUser(authUserDTO);
         commentRepository.deleteByIdAndAuthorId(commentId, author.getId());
+    }
+
+    private void sendNotificationToAuthor(Comment comment, EventType eventType) {
+        User commentAuthor = comment.getAuthor();
+        if (commentAuthor != null && commentAuthor.getInternalId() != null) {
+            EventMessage eventMessage = new ModeratorEvent(eventType, Set.of(commentAuthor.getInternalId()), comment.getReducedTitle(), comment.getId());
+            notificationService.sendNotification(eventMessage);
+        }
     }
 }

@@ -30,4 +30,9 @@ public class Comment {
     private LocalDateTime created;
     @Column
     private LocalDateTime updated;
+    public String getReducedTitle(){
+        String title = this.body;
+        title = title.substring(0, Math.min(title.length(), 60));
+        return title;
+    }
 }

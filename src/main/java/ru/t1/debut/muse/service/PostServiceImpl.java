@@ -11,14 +11,8 @@ import org.springframework.stereotype.Service;
 import ru.t1.debut.muse.controller.post.SortBy;
 import ru.t1.debut.muse.controller.post.SortDir;
 import ru.t1.debut.muse.dto.*;
-import ru.t1.debut.muse.entity.Post;
-import ru.t1.debut.muse.entity.Role;
-import ru.t1.debut.muse.entity.Tag;
-import ru.t1.debut.muse.entity.User;
-import ru.t1.debut.muse.entity.event.CreateAnswerEvent;
-import ru.t1.debut.muse.entity.event.CreatePostForTag;
-import ru.t1.debut.muse.entity.event.EventMessage;
-import ru.t1.debut.muse.entity.event.EventType;
+import ru.t1.debut.muse.entity.*;
+import ru.t1.debut.muse.entity.event.*;
 import ru.t1.debut.muse.exception.ResourceNotFoundException;
 import ru.t1.debut.muse.repository.PostRepository;
 import ru.t1.debut.muse.repository.PostSearchProjection;
@@ -105,14 +99,13 @@ class PostServiceImpl implements PostService {
     private void sendNotifications(Post parent, Post answer, Set<Tag> tags) {
         boolean author_UUID_exists = parent != null && parent.getAuthor() != null && parent.getAuthor().getInternalId() != null;
         if (parent != null) {
-            String title = getReducedTitle(parent.getTitle());
             Set<UUID> parentPostSubscribers = postSubscribeService.getSubscribersUUIDForPost(parent.getId());
             if (author_UUID_exists) {
                 parentPostSubscribers.remove(parent.getAuthor().getInternalId());
-                EventMessage eventMessageForAuthor = new CreateAnswerEvent(EventType.NEW_ANSWER_FOR_YOUR_POST, Set.of(parent.getAuthor().getInternalId()), title, parent.getId(), answer.getId());
+                EventMessage eventMessageForAuthor = new CreateAnswerEvent(EventType.NEW_ANSWER_FOR_YOUR_POST, Set.of(parent.getAuthor().getInternalId()), parent.getReducedTitle(), parent.getId(), answer.getId());
                 notificationService.sendNotification(eventMessageForAuthor);
             }
-            EventMessage eventMessage = new CreateAnswerEvent(EventType.NEW_ANSWER_FOR_POST, parentPostSubscribers, title, parent.getId(), answer.getId());
+            EventMessage eventMessage = new CreateAnswerEvent(EventType.NEW_ANSWER_FOR_POST, parentPostSubscribers, parent.getReducedTitle(), parent.getId(), answer.getId());
             notificationService.sendNotification(eventMessage);
             if (!tags.isEmpty()) {
                 // Надо будет переписать на один запрос
@@ -120,17 +113,11 @@ class PostServiceImpl implements PostService {
                     Set<UUID> tagSubscribers = tagSubscribeService.getSubscribersUUIDForTag(tag.getId());
                     if (author_UUID_exists)
                         tagSubscribers.remove(parent.getAuthor().getInternalId());
-                    EventMessage tagEventMessage = new CreatePostForTag(tagSubscribers, title, answer.getId(), tag.getName());
+                    EventMessage tagEventMessage = new CreatePostForTag(tagSubscribers, parent.getReducedTitle(), answer.getId(), tag.getName());
                     notificationService.sendNotification(tagEventMessage);
                 }
             }
         }
-    }
-
-    private static String getReducedTitle(String input) {
-        String title = input;
-        title = title.substring(0, Math.min(title.length(), 60));
-        return title;
     }
 
     @Transactional
@@ -149,6 +136,8 @@ class PostServiceImpl implements PostService {
                 // Попытка отредактировать чужой пост
                 return;
             }
+            EventType eventType = post.getPostType() == PostType.ANSWER ? EventType.MODERATOR_EDIT_YOUR_ANSWER : EventType.MODERATOR_EDIT_YOUR_QUESTION;
+            sendNotificationToAuthor(post, eventType);
         }
         post.setTitle(updatePostRequest.getTitle());
         post.setBody(updatePostRequest.getBody());
@@ -160,7 +149,10 @@ class PostServiceImpl implements PostService {
     @Override
     public void deletePost(Long id, UserDTO authUserDTO) {
         if (userService.checkUserRole(authUserDTO, Role.ROLE_MUSE_MODER)) {
+            Post post = postRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
             postRepository.deleteById(id);
+            EventType eventType = post.getPostType() == PostType.ANSWER ? EventType.MODERATOR_DELETE_YOUR_ANSWER : EventType.MODERATOR_DELETE_YOUR_QUESTION;
+            sendNotificationToAuthor(post, eventType);
             return;
         }
         User authUser = userService.getUser(authUserDTO);
@@ -171,5 +163,13 @@ class PostServiceImpl implements PostService {
     public PostDTO getPost(Long id, UserDTO userDTO) {
         User authUser = userService.getUser(userDTO);
         return postRepository.getById(authUser.getId(), id).map(PostDTO::fromPostSearchResult).orElseThrow(ResourceNotFoundException::new);
+    }
+
+    private void sendNotificationToAuthor(Post post, EventType eventType) {
+        User postAuthor = post.getAuthor();
+        if (postAuthor != null && postAuthor.getInternalId() != null) {
+            EventMessage eventMessage = new ModeratorEvent(eventType, Set.of(postAuthor.getInternalId()), post.getReducedTitle(), post.getId());
+            notificationService.sendNotification(eventMessage);
+        }
     }
 }
