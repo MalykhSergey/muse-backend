@@ -12,8 +12,8 @@ public class CreateAnswerEvent extends EventMessage {
     private Long parentId;
     private Long answerId;
 
-    public CreateAnswerEvent(EventType eventType, Set<UUID> usersUUID, Long parentId, Long answerId) {
-        super(eventType, usersUUID);
+    public CreateAnswerEvent(EventType eventType, Set<UUID> usersUUID, String description, Long parentId, Long answerId) {
+        super(eventType, usersUUID, description);
         this.parentId = parentId;
         this.answerId = answerId;
     }

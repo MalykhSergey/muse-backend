@@ -13,4 +13,5 @@ import java.util.UUID;
 public class EventMessage {
     private EventType eventType;
     private Set<UUID> usersUUID;
+    private String description;
 }

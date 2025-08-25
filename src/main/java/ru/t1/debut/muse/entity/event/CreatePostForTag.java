@@ -12,8 +12,8 @@ public class CreatePostForTag extends EventMessage {
     private Long postId;
     private String tagName;
 
-    public CreatePostForTag(Set<UUID> receivers, Long postId, String tagName) {
-        super(EventType.NEW_POST_FOR_TAG, receivers);
+    public CreatePostForTag(Set<UUID> receivers, String description, Long postId, String tagName) {
+        super(EventType.NEW_POST_FOR_TAG, receivers, description);
         this.postId = postId;
         this.tagName = tagName;
     }

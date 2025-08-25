@@ -12,8 +12,8 @@ public class CreateCommentEvent extends EventMessage {
     private Long postId;
     private Long commentId;
 
-    public CreateCommentEvent(EventType eventType, Set<UUID> usersUUID, Long postId, Long commentId) {
-        super(eventType, usersUUID);
+    public CreateCommentEvent(EventType eventType, Set<UUID> usersUUID, String description, Long postId, Long commentId) {
+        super(eventType, usersUUID, description);
         this.postId = postId;
         this.commentId = commentId;
     }

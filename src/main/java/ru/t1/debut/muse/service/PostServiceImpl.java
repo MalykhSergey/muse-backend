@@ -105,25 +105,32 @@ class PostServiceImpl implements PostService {
     private void sendNotifications(Post parent, Post answer, Set<Tag> tags) {
         boolean author_UUID_exists = parent != null && parent.getAuthor() != null && parent.getAuthor().getInternalId() != null;
         if (parent != null) {
+            String title = getReducedTitle(parent.getTitle());
             Set<UUID> parentPostSubscribers = postSubscribeService.getSubscribersUUIDForPost(parent.getId());
             if (author_UUID_exists) {
                 parentPostSubscribers.remove(parent.getAuthor().getInternalId());
-                EventMessage eventMessageForAuthor = new CreateAnswerEvent(EventType.NEW_ANSWER_FOR_YOUR_POST, Set.of(parent.getAuthor().getInternalId()), parent.getId(), answer.getId());
+                EventMessage eventMessageForAuthor = new CreateAnswerEvent(EventType.NEW_ANSWER_FOR_YOUR_POST, Set.of(parent.getAuthor().getInternalId()), title, parent.getId(), answer.getId());
                 notificationService.sendNotification(eventMessageForAuthor);
             }
-            EventMessage eventMessage = new CreateAnswerEvent(EventType.NEW_ANSWER_FOR_POST, parentPostSubscribers, parent.getId(), answer.getId());
+            EventMessage eventMessage = new CreateAnswerEvent(EventType.NEW_ANSWER_FOR_POST, parentPostSubscribers, title, parent.getId(), answer.getId());
             notificationService.sendNotification(eventMessage);
-        }
-        if (!tags.isEmpty()) {
-            // Надо будет переписать на один запрос
-            for (Tag tag : tags) {
-                Set<UUID> tagSubscribers = tagSubscribeService.getSubscribersUUIDForTag(tag.getId());
-                if (author_UUID_exists)
-                    tagSubscribers.remove(parent.getAuthor().getInternalId());
-                EventMessage eventMessage = new CreatePostForTag(tagSubscribers, answer.getId(), tag.getName());
-                notificationService.sendNotification(eventMessage);
+            if (!tags.isEmpty()) {
+                // Надо будет переписать на один запрос
+                for (Tag tag : tags) {
+                    Set<UUID> tagSubscribers = tagSubscribeService.getSubscribersUUIDForTag(tag.getId());
+                    if (author_UUID_exists)
+                        tagSubscribers.remove(parent.getAuthor().getInternalId());
+                    EventMessage tagEventMessage = new CreatePostForTag(tagSubscribers, title, answer.getId(), tag.getName());
+                    notificationService.sendNotification(tagEventMessage);
+                }
             }
         }
+    }
+
+    private static String getReducedTitle(String input) {
+        String title = input;
+        title = title.substring(0, Math.min(title.length(), 60));
+        return title;
     }
 
     @Transactional
@@ -138,7 +145,7 @@ class PostServiceImpl implements PostService {
         Set<Tag> tags = updatePostRequest.getTags().stream().map(tag -> new Tag(tag.id(), null, null, null)).collect(Collectors.toSet());
         Post post = postRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
         if (!post.getAuthor().getId().equals(author.getId())) {
-            if (!userService.checkUserRole(authUserDTO, Role.ROLE_MUSE_MODER)){
+            if (!userService.checkUserRole(authUserDTO, Role.ROLE_MUSE_MODER)) {
                 // Попытка отредактировать чужой пост
                 return;
             }
@@ -152,7 +159,7 @@ class PostServiceImpl implements PostService {
 
     @Override
     public void deletePost(Long id, UserDTO authUserDTO) {
-        if (userService.checkUserRole(authUserDTO, Role.ROLE_MUSE_MODER)){
+        if (userService.checkUserRole(authUserDTO, Role.ROLE_MUSE_MODER)) {
             postRepository.deleteById(id);
             return;
         }
