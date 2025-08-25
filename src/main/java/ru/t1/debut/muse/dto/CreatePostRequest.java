@@ -5,10 +5,12 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import ru.t1.debut.muse.entity.PostType;
+import ru.t1.debut.muse.validator.ValidCreatePostRequest;
 
 import java.util.Set;
 
 @Data
+@ValidCreatePostRequest
 public class CreatePostRequest {
     @Size(min = 5, max = 150)
     private String title;
