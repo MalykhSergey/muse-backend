@@ -27,6 +27,12 @@ public class CreatePostRequestValidator implements ConstraintValidator<ValidCrea
                 valid = false;
             }
         } else if (postType == PostType.ANSWER) {
+            if (createPostRequest.getParentId() == null) {
+                context.buildConstraintViolationWithTemplate("{jakarta.validation.constraints.NotNull.message}")
+                        .addPropertyNode("parentId")
+                        .addConstraintViolation();
+                valid = false;
+            }
             if (title != null) {
                 context.buildConstraintViolationWithTemplate("{valid.createPostRequest.excessTitle}")
                         .addPropertyNode("excessTitle")
