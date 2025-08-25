@@ -1,8 +1,10 @@
 package ru.t1.debut.muse.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import ru.t1.debut.muse.dto.UserDTO;
+import ru.t1.debut.muse.entity.Role;
 import ru.t1.debut.muse.entity.User;
 import ru.t1.debut.muse.repository.UserRepository;
 
@@ -18,5 +20,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUser(UserDTO userDTO) {
         return userRepository.findByInternalId(userDTO.internalId()).orElseGet(() -> userRepository.save(new User(userDTO)));
+    }
+
+    public boolean checkUserRole(UserDTO userDTO, Role role) {
+        return userDTO.authorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(roleName -> roleName.equals(role.name()));
     }
 }

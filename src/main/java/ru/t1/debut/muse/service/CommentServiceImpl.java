@@ -10,6 +10,7 @@ import ru.t1.debut.muse.dto.UpdateCommentRequest;
 import ru.t1.debut.muse.dto.UserDTO;
 import ru.t1.debut.muse.entity.Comment;
 import ru.t1.debut.muse.entity.Post;
+import ru.t1.debut.muse.entity.Role;
 import ru.t1.debut.muse.entity.User;
 import ru.t1.debut.muse.entity.event.CreateCommentEvent;
 import ru.t1.debut.muse.entity.event.EventMessage;
@@ -70,14 +71,20 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public void update(long commentId, UpdateCommentRequest updateCommentRequest, UserDTO authorDTO) {
-        User author = userService.getUser(authorDTO);
+    public void update(long commentId, UpdateCommentRequest updateCommentRequest, UserDTO authUserDTO) {
+        if (userService.checkUserRole(authUserDTO, Role.ROLE_MUSE_MODER)) {
+            commentRepository.updateById(commentId, updateCommentRequest.getBody(), LocalDateTime.now());
+        }
+        User author = userService.getUser(authUserDTO);
         commentRepository.updateByIdAndAuthorId(commentId, updateCommentRequest.getBody(), LocalDateTime.now(), author.getId());
     }
 
     @Override
-    public void delete(long commentId, UserDTO authorDTO) {
-        User author = userService.getUser(authorDTO);
+    public void delete(long commentId, UserDTO authUserDTO) {
+        if (userService.checkUserRole(authUserDTO, Role.ROLE_MUSE_MODER)) {
+            commentRepository.deleteById(commentId);
+        }
+        User author = userService.getUser(authUserDTO);
         commentRepository.deleteByIdAndAuthorId(commentId, author.getId());
     }
 }

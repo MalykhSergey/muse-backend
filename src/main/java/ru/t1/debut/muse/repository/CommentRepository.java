@@ -26,5 +26,13 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
            "WHERE c.id = :commentId AND c.author.id = :authorId")
     void updateByIdAndAuthorId(long commentId, String body, LocalDateTime updated, long authorId);
 
+    @Transactional
+    @Modifying
+    @Query("UPDATE Comment c SET " +
+           "c.body = :body, " +
+           "c.updated = :updated " +
+           "WHERE c.id = :commentId")
+    void updateById(long commentId, String body, LocalDateTime updated);
+
     Page<Comment> findAllByPost_IdOrderById(long postId, Pageable pageable);
 }

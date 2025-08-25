@@ -1,5 +1,5 @@
 package ru.t1.debut.muse.entity;
 
 public enum Role {
-    BASIC,MODER,ADMIN
+    ROLE_MUSE_MODER
 }

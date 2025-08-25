@@ -12,6 +12,7 @@ import ru.t1.debut.muse.controller.post.SortBy;
 import ru.t1.debut.muse.controller.post.SortDir;
 import ru.t1.debut.muse.dto.*;
 import ru.t1.debut.muse.entity.Post;
+import ru.t1.debut.muse.entity.Role;
 import ru.t1.debut.muse.entity.Tag;
 import ru.t1.debut.muse.entity.User;
 import ru.t1.debut.muse.entity.event.CreateAnswerEvent;
@@ -127,8 +128,8 @@ class PostServiceImpl implements PostService {
 
     @Transactional
     @Override
-    public void updatePost(UpdatePostRequest updatePostRequest, Long id, UserDTO authorDTO) {
-        User author = userService.getUser(authorDTO);
+    public void updatePost(UpdatePostRequest updatePostRequest, Long id, UserDTO authUserDTO) {
+        User author = userService.getUser(authUserDTO);
         Post answer = null;
         if (updatePostRequest.getAnswerId() != null) {
             answer = new Post(updatePostRequest.getAnswerId(), null, null, null, null, null, null, null, null, null, null, null);
@@ -137,8 +138,10 @@ class PostServiceImpl implements PostService {
         Set<Tag> tags = updatePostRequest.getTags().stream().map(tag -> new Tag(tag.id(), null, null, null)).collect(Collectors.toSet());
         Post post = postRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
         if (!post.getAuthor().getId().equals(author.getId())) {
-            // Попытка отредактировать чужой пост
-            return;
+            if (!userService.checkUserRole(authUserDTO, Role.ROLE_MUSE_MODER)){
+                // Попытка отредактировать чужой пост
+                return;
+            }
         }
         post.setTitle(updatePostRequest.getTitle());
         post.setBody(updatePostRequest.getBody());
@@ -148,8 +151,12 @@ class PostServiceImpl implements PostService {
     }
 
     @Override
-    public void deletePost(Long id, UserDTO author) {
-        User authUser = userService.getUser(author);
+    public void deletePost(Long id, UserDTO authUserDTO) {
+        if (userService.checkUserRole(authUserDTO, Role.ROLE_MUSE_MODER)){
+            postRepository.deleteById(id);
+            return;
+        }
+        User authUser = userService.getUser(authUserDTO);
         postRepository.deleteByIdAndAuthorId(id, authUser.getId());
     }
 
