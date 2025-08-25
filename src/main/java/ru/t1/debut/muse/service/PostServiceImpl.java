@@ -49,7 +49,7 @@ class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Page<PostDTO> getPosts(Long parentId, Long tagId, UserDTO userDTO, String query, int page, int size, SortBy sortBy, SortDir sortDir) {
+    public Page<PostDTO> getPosts(Long parentId, Boolean opened, Long tagId, UserDTO userDTO, String query, int page, int size, SortBy sortBy, SortDir sortDir) {
         User authUser = userService.getUser(userDTO);
         long offset = (long) page * size;
         List<PostSearchProjection> result;
@@ -58,7 +58,7 @@ class PostServiceImpl implements PostService {
         } else if (query != null) {
             result = postRepository.searchPosts(query, authUser.getId(), size, offset, sortBy.name(), sortDir.name());
         } else {
-            result = postRepository.getAllByParentId(authUser.getId(), parentId, size, offset, sortBy.name(), sortDir.name());
+            result = postRepository.getAllByParentId(authUser.getId(), opened, parentId, size, offset, sortBy.name(), sortDir.name());
         }
         long total = result.isEmpty() ? 0 : result.getFirst().getTotalCount();
         return new PageImpl<>(result.stream().map(PostDTO::fromPostSearchResult).toList(), PageRequest.of(page, size), total);

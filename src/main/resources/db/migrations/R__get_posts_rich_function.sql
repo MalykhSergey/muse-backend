@@ -2,6 +2,7 @@ DROP FUNCTION IF EXISTS get_posts_rich;
 
 CREATE OR REPLACE FUNCTION get_posts_rich(
     user_id_param BIGINT,
+    opened BOOLEAN,
     parent_id_param BIGINT,
     limit_param INTEGER,
     offset_param BIGINT,
@@ -60,16 +61,26 @@ BEGIN
         SELECT COUNT(*)::BIGINT AS cnt
         FROM posts p
         WHERE
-            (parent_id_param IS NULL AND p.parent_id IS NULL) -- CHECK TYPE
-            OR (parent_id_param IS NOT NULL AND p.parent_id = parent_id_param)
+            (
+            opened = FALSE OR (opened = TRUE AND p.answer_id IS NULL)
+            )
+            AND
+            (
+                (parent_id_param IS NULL AND p.post_type = 'QUESTION') OR (p.parent_id = parent_id_param)
+            )
     ),
     post_ids AS (
         SELECT p.id
         FROM posts p
         LEFT JOIN scores s ON s.post_id = p.id
         WHERE
-            (parent_id_param IS NULL AND p.post_type = 'QUESTION')
-            OR (parent_id_param IS NOT NULL AND p.parent_id = parent_id_param)
+            (
+            opened = FALSE OR (opened = TRUE AND p.answer_id IS NULL)
+            )
+            AND
+            (
+                (parent_id_param IS NULL AND p.post_type = 'QUESTION') OR (p.parent_id = parent_id_param)
+            )
         ORDER BY
             CASE WHEN sort_by = 'CREATED' AND sort_dir = 'ASC'  THEN p.created END ASC,
             CASE WHEN sort_by = 'CREATED' AND sort_dir = 'DESC' THEN p.created END DESC,

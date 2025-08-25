@@ -14,7 +14,7 @@ public interface PostService {
 
     PostDTO getPost(Long id, UserDTO userDTO);
 
-    Page<PostDTO> getPosts(Long parentId, Long tagId, UserDTO userDTO, String query, int page, int size, SortBy sortBy, SortDir sortDir);
+    Page<PostDTO> getPosts(Long parentId, Boolean opened, Long tagId, UserDTO userDTO, String query, int page, int size, SortBy sortBy, SortDir sortDir);
 
     void setAnswer(SetAnswerRequest setAnswerRequest, Long id, UserDTO author);
 

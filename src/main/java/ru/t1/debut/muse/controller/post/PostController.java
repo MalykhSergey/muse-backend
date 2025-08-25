@@ -31,6 +31,7 @@ public class PostController {
             @RequestParam(required = false) String query,
             @RequestParam(required = false) Long parentId,
             @RequestParam(required = false) Long tagId,
+            @RequestParam(required = false, defaultValue = "false") Boolean opened,
             @RequestParam int page,
             @RequestParam int size,
             @RequestParam(required = false) SortBy sortBy,
@@ -42,7 +43,7 @@ public class PostController {
         if (sortDir == null) {
             sortDir = SortDir.DESC;
         }
-        return ResponseEntity.ok(postService.getPosts(parentId, tagId, userDTO, query, page, size, sortBy, sortDir));
+        return ResponseEntity.ok(postService.getPosts(parentId, opened, tagId, userDTO, query, page, size, sortBy, sortDir));
     }
 
     @Operation(
