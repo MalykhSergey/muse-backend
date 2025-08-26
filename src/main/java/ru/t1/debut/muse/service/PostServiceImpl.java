@@ -74,7 +74,7 @@ class PostServiceImpl implements PostService {
     @Override
     public Page<PostDTO> getPostsBySubscribedTags(UserDTO userDTO, Boolean opened, int page, int size, SortBy sortBy, SortDir sortDir) {
         User authUser = userService.getUser(userDTO);
-        List<PostSearchProjection> result = postRepository.getPostsBySubscribedTags(authUser.getId(),opened, size, (long) page * size, sortBy.name(), sortDir.name());
+        List<PostSearchProjection> result = postRepository.getPostsBySubscribedTags(authUser.getId(), opened, size, (long) page * size, sortBy.name(), sortDir.name());
         long total = result.isEmpty() ? 0 : result.getFirst().getTotalCount();
         return new PageImpl<>(result.stream().map(PostDTO::fromPostSearchResult).toList(), PageRequest.of(page, size), total);
     }
@@ -137,7 +137,7 @@ class PostServiceImpl implements PostService {
                 return;
             }
             EventType eventType = post.getPostType() == PostType.ANSWER ? EventType.MODERATOR_EDIT_YOUR_ANSWER : EventType.MODERATOR_EDIT_YOUR_QUESTION;
-            sendNotificationToAuthor(post, eventType);
+            sendModerNotificationToAuthor(authUserDTO, post, eventType);
         }
         post.setTitle(updatePostRequest.getTitle());
         post.setBody(updatePostRequest.getBody());
@@ -152,7 +152,7 @@ class PostServiceImpl implements PostService {
             Post post = postRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
             postRepository.deleteById(id);
             EventType eventType = post.getPostType() == PostType.ANSWER ? EventType.MODERATOR_DELETE_YOUR_ANSWER : EventType.MODERATOR_DELETE_YOUR_QUESTION;
-            sendNotificationToAuthor(post, eventType);
+            sendModerNotificationToAuthor(authUserDTO, post, eventType);
             return;
         }
         User authUser = userService.getUser(authUserDTO);
@@ -165,9 +165,11 @@ class PostServiceImpl implements PostService {
         return postRepository.getById(authUser.getId(), id).map(PostDTO::fromPostSearchResult).orElseThrow(ResourceNotFoundException::new);
     }
 
-    private void sendNotificationToAuthor(Post post, EventType eventType) {
+    private void sendModerNotificationToAuthor(UserDTO authUserDTO, Post post, EventType eventType) {
         User postAuthor = post.getAuthor();
         if (postAuthor != null && postAuthor.getInternalId() != null) {
+            // Модератор удалил свой пост
+            if (authUserDTO.internalId().equals(postAuthor.getInternalId())) return;
             EventMessage eventMessage = new ModeratorEvent(eventType, Set.of(postAuthor.getInternalId()), post.getReducedTitle(), post.getId());
             notificationService.sendNotification(eventMessage);
         }

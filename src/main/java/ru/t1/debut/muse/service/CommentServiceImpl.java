@@ -75,7 +75,7 @@ public class CommentServiceImpl implements CommentService {
     public void update(long commentId, UpdateCommentRequest updateCommentRequest, UserDTO authUserDTO) {
         if (userService.checkUserRole(authUserDTO, Role.ROLE_MUSE_MODER)) {
             Comment comment = commentRepository.findById(commentId).orElseThrow(ResourceNotFoundException::new);
-            sendNotificationToAuthor(comment, EventType.MODERATOR_EDIT_YOUR_COMMENT);
+            sendNotificationToAuthor(authUserDTO, comment, EventType.MODERATOR_EDIT_YOUR_COMMENT);
             commentRepository.updateById(commentId, updateCommentRequest.getBody(), LocalDateTime.now());
         }
         User author = userService.getUser(authUserDTO);
@@ -86,16 +86,18 @@ public class CommentServiceImpl implements CommentService {
     public void delete(long commentId, UserDTO authUserDTO) {
         if (userService.checkUserRole(authUserDTO, Role.ROLE_MUSE_MODER)) {
             Comment comment = commentRepository.findById(commentId).orElseThrow(ResourceNotFoundException::new);
-            sendNotificationToAuthor(comment, EventType.MODERATOR_DELETE_YOUR_COMMENT);
+            sendNotificationToAuthor(authUserDTO, comment, EventType.MODERATOR_DELETE_YOUR_COMMENT);
             commentRepository.deleteById(commentId);
         }
         User author = userService.getUser(authUserDTO);
         commentRepository.deleteByIdAndAuthorId(commentId, author.getId());
     }
 
-    private void sendNotificationToAuthor(Comment comment, EventType eventType) {
+    private void sendNotificationToAuthor(UserDTO authUserDTO, Comment comment, EventType eventType) {
         User commentAuthor = comment.getAuthor();
         if (commentAuthor != null && commentAuthor.getInternalId() != null) {
+            // Модератор удалил свой коммент
+            if (authUserDTO.internalId().equals(commentAuthor.getInternalId())) return;
             EventMessage eventMessage = new ModeratorEvent(eventType, Set.of(commentAuthor.getInternalId()), comment.getReducedTitle(), comment.getId());
             notificationService.sendNotification(eventMessage);
         }
