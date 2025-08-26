@@ -2,12 +2,15 @@ package ru.t1.debut.muse.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.t1.debut.muse.dto.CreateSubscribeRequest;
 import ru.t1.debut.muse.dto.TagSubscribeDTO;
@@ -17,6 +20,7 @@ import ru.t1.debut.muse.service.TagSubscribeService;
 
 @RestController
 @RequestMapping("/subscribes/tags")
+@Validated
 public class TagSubscribeController {
     private final TagSubscribeService tagSubscribeService;
 
@@ -27,7 +31,7 @@ public class TagSubscribeController {
 
     @Operation(summary = "Получить подписки на тэги")
     @GetMapping
-    public ResponseEntity<Page<TagSubscribeDTO>> getAllTagSubscribe(@RequestParam int size, @RequestParam int page, @AuthenticationPrincipal UserDTO userDTO) {
+    public ResponseEntity<Page<TagSubscribeDTO>> getAllTagSubscribe(@RequestParam @Min(0) int page, @RequestParam @Min(1) @Max(100) int size, @AuthenticationPrincipal UserDTO userDTO) {
         return ResponseEntity.ok(tagSubscribeService.getAll(PageRequest.of(page, size), userDTO));
     }
 

@@ -2,6 +2,8 @@ package ru.t1.debut.muse.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -9,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.t1.debut.muse.dto.CommentDTO;
 import ru.t1.debut.muse.dto.CreateCommentRequest;
@@ -18,6 +21,7 @@ import ru.t1.debut.muse.service.CommentService;
 
 @RestController
 @RequestMapping("/comments")
+@Validated
 public class CommentController {
     private final CommentService commentService;
 
@@ -30,8 +34,8 @@ public class CommentController {
     @GetMapping
     ResponseEntity<Page<CommentDTO>> getPostComments(
             @RequestParam("postId") long postId,
-            @RequestParam int page,
-            @RequestParam int size) {
+            @RequestParam @Min(0) int page,
+            @RequestParam @Min(1) @Max(100) int size) {
         Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(commentService.getPostComments(postId, pageable));
     }

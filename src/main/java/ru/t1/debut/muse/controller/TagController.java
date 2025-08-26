@@ -27,7 +27,7 @@ public class TagController {
 
     @Operation(summary = "Получить список тэгов. Если указан префикс, возвращает тэги с префиксом")
     @GetMapping
-    public ResponseEntity<Page<TagDTO>> getTags(@RequestParam(required = false) String prefix, @Min(0) int page, @Min(1) @Max(100) int size) {
+    public ResponseEntity<Page<TagDTO>> getTags(@RequestParam(required = false) String prefix, @RequestParam @Min(0) int page, @RequestParam @Min(1) @Max(100) int size) {
         Pageable pageable = PageRequest.of(page,size);
         if (prefix != null && !prefix.isBlank())
             return ResponseEntity.ok(tagService.getTagsByPrefix(prefix, pageable));
