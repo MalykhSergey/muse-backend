@@ -25,10 +25,6 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-  data:
-    web:
-      pageable:
-        max-page-size: 30
   messages:
     basename: messages
 springdoc:
