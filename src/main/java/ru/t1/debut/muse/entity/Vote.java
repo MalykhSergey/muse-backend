@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Table(name = "votes")
 @Entity
@@ -26,7 +26,7 @@ public class Vote {
     @JoinColumn(name = "post_id")
     Post post;
     @Column
-    private LocalDateTime created;
+    private Instant created;
     @Enumerated(EnumType.STRING)
     private VoteType type;
 }

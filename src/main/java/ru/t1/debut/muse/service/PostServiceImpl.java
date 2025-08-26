@@ -18,7 +18,7 @@ import ru.t1.debut.muse.repository.PostRepository;
 import ru.t1.debut.muse.repository.PostSearchProjection;
 import ru.t1.debut.muse.repository.TagRepository;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -87,7 +87,7 @@ class PostServiceImpl implements PostService {
         if (createPostRequest.getParentId() != null) {
             parent = postRepository.findById(createPostRequest.getParentId()).orElseThrow(ResourceNotFoundException::new);
         }
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
         Set<Tag> tags = createPostRequest.getTags().stream().map(tag -> tagRepository.findById(tag.id())).flatMap(Optional::stream).collect(Collectors.toSet());
         Post post = new Post(null, createPostRequest.getTitle(), createPostRequest.getBody(), createPostRequest.getPostType(), author, parent, null, now, now, null, null, tags);
         Post save = postRepository.save(post);
@@ -128,7 +128,7 @@ class PostServiceImpl implements PostService {
         if (updatePostRequest.getAnswerId() != null) {
             answer = new Post(updatePostRequest.getAnswerId(), null, null, null, null, null, null, null, null, null, null, null);
         }
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
         Set<Tag> tags = updatePostRequest.getTags().stream().map(tag -> new Tag(tag.id(), null, null, null)).collect(Collectors.toSet());
         Post post = postRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
         if (!post.getAuthor().getId().equals(author.getId())) {

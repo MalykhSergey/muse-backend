@@ -11,7 +11,7 @@ import ru.t1.debut.muse.entity.VoteType;
 import ru.t1.debut.muse.exception.ResourceNotFoundException;
 import ru.t1.debut.muse.repository.VoteRepository;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Optional;
 
 @Service
@@ -34,12 +34,12 @@ public class VoteServiceImpl implements VoteService {
         if (stored_vote.isEmpty()) {
             Post post = new Post();
             post.setId(postId);
-            vote = new Vote(null, author, post, LocalDateTime.now(), voteType);
+            vote = new Vote(null, author, post, Instant.now(), voteType);
             voteRepository.save(vote);
         } else {
             vote = stored_vote.get();
             vote.setType(voteType);
-            vote.setCreated(LocalDateTime.now());
+            vote.setCreated(Instant.now());
         }
     }
 

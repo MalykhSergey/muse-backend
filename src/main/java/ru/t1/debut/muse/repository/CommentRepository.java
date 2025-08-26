@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import ru.t1.debut.muse.entity.Comment;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
@@ -24,7 +24,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
            "c.body = :body, " +
            "c.updated = :updated " +
            "WHERE c.id = :commentId AND c.author.id = :authorId")
-    void updateByIdAndAuthorId(long commentId, String body, LocalDateTime updated, long authorId);
+    void updateByIdAndAuthorId(long commentId, String body, Instant updated, long authorId);
 
     @Transactional
     @Modifying
@@ -32,7 +32,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
            "c.body = :body, " +
            "c.updated = :updated " +
            "WHERE c.id = :commentId")
-    void updateById(long commentId, String body, LocalDateTime updated);
+    void updateById(long commentId, String body, Instant updated);
 
     Page<Comment> findAllByPost_IdOrderById(long postId, Pageable pageable);
 }

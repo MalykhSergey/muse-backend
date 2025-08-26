@@ -1,3 +1,5 @@
+DROP FUNCTION IF EXISTS get_posts_rich_by_tag;
+
 CREATE OR REPLACE FUNCTION get_posts_rich_by_tag(
     user_id_param BIGINT,
     tag_id_param BIGINT,
@@ -18,8 +20,8 @@ RETURNS TABLE (
     author_name VARCHAR,
     parent_id BIGINT,
     answer_id BIGINT,
-    created TIMESTAMP,
-    updated TIMESTAMP,
+    created TIMESTAMPTZ,
+    updated TIMESTAMPTZ,
     score BIGINT,
     answer_count BIGINT,
     vote_type vote_type,

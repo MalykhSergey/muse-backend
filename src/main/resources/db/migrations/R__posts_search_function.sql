@@ -1,3 +1,5 @@
+DROP FUNCTION IF EXISTS search_posts_function;
+
 CREATE OR REPLACE FUNCTION search_posts_function(
     search_query TEXT,
     user_id_param BIGINT,
@@ -18,8 +20,8 @@ RETURNS TABLE (
     author_name VARCHAR,
     parent_id BIGINT,
     answer_id BIGINT,
-    created TIMESTAMP,
-    updated TIMESTAMP,
+    created TIMESTAMPTZ,
+    updated TIMESTAMPTZ,
     score BIGINT,
     answer_count BIGINT,
     vote_type vote_type,

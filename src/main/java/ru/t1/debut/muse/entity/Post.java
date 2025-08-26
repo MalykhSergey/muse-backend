@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -39,9 +39,9 @@ public class Post {
     @JoinColumn(name = "answer_id")
     private Post answer;
     @Column(updatable = false)
-    private LocalDateTime created;
+    private Instant created;
     @Column
-    private LocalDateTime updated;
+    private Instant updated;
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
     private List<Vote> votes;
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)

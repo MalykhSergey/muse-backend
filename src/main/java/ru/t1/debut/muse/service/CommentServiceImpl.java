@@ -20,7 +20,7 @@ import ru.t1.debut.muse.exception.ResourceNotFoundException;
 import ru.t1.debut.muse.repository.CommentRepository;
 import ru.t1.debut.muse.repository.PostRepository;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
 
@@ -54,7 +54,7 @@ public class CommentServiceImpl implements CommentService {
     public CommentDTO create(CreateCommentRequest createCommentRequest, UserDTO authorDTO) {
         User author = userService.getUser(authorDTO);
         Post post = postRepository.findById(createCommentRequest.getPostId()).orElseThrow(ResourceNotFoundException::new);
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
         Comment comment = commentRepository.save(new Comment(null, createCommentRequest.getBody(), author, post, now, now));
         sendNotifications(post, comment);
         return new CommentDTO(comment.getId(), comment.getBody(), new UserDTO(author), createCommentRequest.getPostId(), now, now);
@@ -76,10 +76,10 @@ public class CommentServiceImpl implements CommentService {
         if (userService.checkUserRole(authUserDTO, Role.ROLE_MUSE_MODER)) {
             Comment comment = commentRepository.findById(commentId).orElseThrow(ResourceNotFoundException::new);
             sendNotificationToAuthor(authUserDTO, comment, EventType.MODERATOR_EDIT_YOUR_COMMENT);
-            commentRepository.updateById(commentId, updateCommentRequest.getBody(), LocalDateTime.now());
+            commentRepository.updateById(commentId, updateCommentRequest.getBody(), Instant.now());
         }
         User author = userService.getUser(authUserDTO);
-        commentRepository.updateByIdAndAuthorId(commentId, updateCommentRequest.getBody(), LocalDateTime.now(), author.getId());
+        commentRepository.updateByIdAndAuthorId(commentId, updateCommentRequest.getBody(), Instant.now(), author.getId());
     }
 
     @Override

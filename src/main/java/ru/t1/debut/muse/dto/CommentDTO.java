@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @NoArgsConstructor
@@ -14,6 +14,6 @@ public class CommentDTO {
     private String body;
     private UserDTO author;
     private Long postId;
-    private LocalDateTime created;
-    private LocalDateTime updated;
+    private Instant created;
+    private Instant updated;
 }

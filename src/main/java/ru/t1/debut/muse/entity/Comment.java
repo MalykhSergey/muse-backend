@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Table(name = "comments")
 @Entity
@@ -27,10 +27,11 @@ public class Comment {
     @JoinColumn(name = "post_id", updatable = false)
     private Post post;
     @Column(updatable = false)
-    private LocalDateTime created;
+    private Instant created;
     @Column
-    private LocalDateTime updated;
-    public String getReducedTitle(){
+    private Instant updated;
+
+    public String getReducedTitle() {
         String title = this.body;
         title = title.substring(0, Math.min(title.length(), 60));
         return title;

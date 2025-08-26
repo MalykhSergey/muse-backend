@@ -10,7 +10,7 @@ import ru.t1.debut.muse.entity.UserType;
 import ru.t1.debut.muse.entity.VoteType;
 import ru.t1.debut.muse.repository.PostSearchProjection;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @AllArgsConstructor
@@ -22,8 +22,8 @@ public final class PostDTO {
     private UserDTO author;
     private Long parentId;
     private Long answerId;
-    private LocalDateTime created;
-    private LocalDateTime updated;
+    private Instant created;
+    private Instant updated;
     private Long score;
     private Long answersCount;
     private VoteType usersVote;
