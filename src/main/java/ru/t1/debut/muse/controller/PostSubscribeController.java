@@ -6,16 +6,14 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.t1.debut.muse.dto.CreateSubscribeRequest;
-import ru.t1.debut.muse.dto.PostSubscribeDTO;
-import ru.t1.debut.muse.dto.UpdateSubscribeRequest;
-import ru.t1.debut.muse.dto.UserDTO;
+import ru.t1.debut.muse.controller.post.SortBy;
+import ru.t1.debut.muse.controller.post.SortDir;
+import ru.t1.debut.muse.dto.*;
 import ru.t1.debut.muse.service.PostSubscribeService;
 
 @RestController
@@ -29,10 +27,16 @@ public class PostSubscribeController {
         this.postSubscribeService = postSubscribeService;
     }
 
-    @Operation(summary = "Получить подписки на посты")
+    @Operation(summary = "Получить подписанные посты")
     @GetMapping
-    public ResponseEntity<Page<PostSubscribeDTO>> getAllPostSubscribe(@RequestParam @Min(0) int page, @RequestParam @Min(1) @Max(100) int size, @AuthenticationPrincipal UserDTO userDTO) {
-        return ResponseEntity.ok(postSubscribeService.getAll(PageRequest.of(page, size), userDTO));
+    public ResponseEntity<Page<PostDTO>> getAllPostSubscribe(@RequestParam @Min(0) int page, @RequestParam @Min(1) @Max(100) int size, @RequestParam(required = false) SortBy sortBy, @RequestParam(required = false) SortDir sortDir, @AuthenticationPrincipal UserDTO userDTO) {
+        if (sortBy == null) {
+            sortBy = SortBy.CREATED;
+        }
+        if (sortDir == null) {
+            sortDir = SortDir.DESC;
+        }
+        return ResponseEntity.ok(postSubscribeService.getAll(userDTO, page, size, sortBy, sortDir));
     }
 
     @Operation(summary = "Создать подписку на пост")

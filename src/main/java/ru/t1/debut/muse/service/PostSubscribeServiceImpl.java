@@ -2,18 +2,20 @@ package ru.t1.debut.muse.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import ru.t1.debut.muse.dto.CreateSubscribeRequest;
-import ru.t1.debut.muse.dto.PostSubscribeDTO;
-import ru.t1.debut.muse.dto.UpdateSubscribeRequest;
-import ru.t1.debut.muse.dto.UserDTO;
+import ru.t1.debut.muse.controller.post.SortBy;
+import ru.t1.debut.muse.controller.post.SortDir;
+import ru.t1.debut.muse.dto.*;
 import ru.t1.debut.muse.entity.Post;
 import ru.t1.debut.muse.entity.PostSubscribe;
 import ru.t1.debut.muse.entity.PostSubscribeId;
 import ru.t1.debut.muse.entity.User;
+import ru.t1.debut.muse.repository.PostSearchProjection;
 import ru.t1.debut.muse.repository.PostSubscribeRepository;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -29,9 +31,11 @@ public class PostSubscribeServiceImpl implements PostSubscribeService {
     }
 
     @Override
-    public Page<PostSubscribeDTO> getAll(Pageable pageable, UserDTO authUserDTO) {
+    public Page<PostDTO> getAll(UserDTO authUserDTO, int page, int size, SortBy sortBy, SortDir sortDir) {
         User authUser = userService.getUser(authUserDTO);
-        return postSubscribeRepository.findAllByUserId(authUser.getId(), pageable).map(PostSubscribeDTO::new);
+        List<PostSearchProjection> result = postSubscribeRepository.findAllByUserId(authUser.getId(), size, (long) page * size, sortBy.name(), sortDir.name());
+        long total = result.isEmpty() ? 0 : result.getFirst().getTotalCount();
+        return new PageImpl<>(result.stream().map(PostDTO::fromPostSearchResult).toList(), PageRequest.of(page, size), total);
     }
 
     @Override

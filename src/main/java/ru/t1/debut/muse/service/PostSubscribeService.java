@@ -1,11 +1,9 @@
 package ru.t1.debut.muse.service;
 
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import ru.t1.debut.muse.dto.CreateSubscribeRequest;
-import ru.t1.debut.muse.dto.PostSubscribeDTO;
-import ru.t1.debut.muse.dto.UpdateSubscribeRequest;
-import ru.t1.debut.muse.dto.UserDTO;
+import ru.t1.debut.muse.controller.post.SortBy;
+import ru.t1.debut.muse.controller.post.SortDir;
+import ru.t1.debut.muse.dto.*;
 import ru.t1.debut.muse.entity.Post;
 import ru.t1.debut.muse.entity.User;
 
@@ -13,7 +11,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public interface PostSubscribeService {
-    Page<PostSubscribeDTO> getAll(Pageable pageable, UserDTO authUserDTO);
+    Page<PostDTO> getAll(UserDTO authUserDTO, int page, int size, SortBy sortBy, SortDir sortDir);
 
     PostSubscribeDTO create(long postId, CreateSubscribeRequest createSubscribeRequest, UserDTO authUserDTO);
 
