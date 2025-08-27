@@ -107,15 +107,15 @@ class PostServiceImpl implements PostService {
             }
             EventMessage eventMessage = new CreateAnswerEvent(EventType.NEW_ANSWER_FOR_POST, parentPostSubscribers, parent.getReducedTitle(), parent.getId(), answer.getId());
             notificationService.sendNotification(eventMessage);
-            if (!tags.isEmpty()) {
-                // Надо будет переписать на один запрос
-                for (Tag tag : tags) {
-                    Set<UUID> tagSubscribers = tagSubscribeService.getSubscribersUUIDForTag(tag.getId());
-                    if (author_UUID_exists)
-                        tagSubscribers.remove(parent.getAuthor().getInternalId());
-                    EventMessage tagEventMessage = new CreatePostForTag(tagSubscribers, parent.getReducedTitle(), answer.getId(), tag.getName());
-                    notificationService.sendNotification(tagEventMessage);
-                }
+        }
+        if (!tags.isEmpty()) {
+            // Надо будет переписать на один запрос
+            for (Tag tag : tags) {
+                Set<UUID> tagSubscribers = tagSubscribeService.getSubscribersUUIDForTag(tag.getId());
+                if (author_UUID_exists)
+                    tagSubscribers.remove(parent.getAuthor().getInternalId());
+                EventMessage tagEventMessage = new CreatePostForTag(tagSubscribers, answer.getReducedTitle(), answer.getId(), tag.getName());
+                notificationService.sendNotification(tagEventMessage);
             }
         }
     }
