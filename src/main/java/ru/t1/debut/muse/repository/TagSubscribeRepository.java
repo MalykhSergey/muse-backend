@@ -15,8 +15,8 @@ import java.util.UUID;
 
 @Repository
 public interface TagSubscribeRepository extends JpaRepository<TagSubscribe, TagSubscribeId> {
-    @Query("SELECT ts FROM TagSubscribe ts WHERE ts.user.id = :id")
-    Page<TagSubscribe> findAllByUserId(Long id, Pageable pageable);
+    @Query(value = "SELECT tags.id, tags.name, tags_subscribes.is_notification FROM tags_subscribes JOIN tags ON tags_subscribes.tag_id = tags.id WHERE user_id = :id", nativeQuery = true)
+    Page<TagSubscribeProjection> findAllByUserId(Long id, Pageable pageable);
 
     @Transactional
     @Modifying

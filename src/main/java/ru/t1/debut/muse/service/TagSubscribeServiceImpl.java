@@ -49,7 +49,8 @@ public class TagSubscribeServiceImpl implements TagSubscribeService {
         tagSubscribe.setUser(authUser);
         tagSubscribe.setTag(tag);
         tagSubscribe.setNotification(createSubscribeRequest.getIsNotification());
-        return new TagSubscribeDTO(tagSubscribeRepository.save(tagSubscribe));
+        tagSubscribeRepository.save(tagSubscribe);
+        return new TagSubscribeDTO(tagId,null,createSubscribeRequest.getIsNotification());
     }
 
     @Override
